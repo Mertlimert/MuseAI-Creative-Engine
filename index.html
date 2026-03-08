@@ -39,6 +39,10 @@
         <span class="nav-item__icon">📜</span>
         <span>Quest Ledger</span>
       </div>
+      <div class="nav-item" data-page="location-forge" id="nav-location-forge">
+        <span class="nav-item__icon">🏰</span>
+        <span>Location Forge</span>
+      </div>
       <div class="nav-item" data-page="lore-master" id="nav-lore-master">
         <span class="nav-item__icon">🤖</span>
         <span>Lore-Master AI</span>
@@ -109,6 +113,7 @@
           <p>Craft and manage your story's characters</p>
         </div>
         <div class="page-header__actions">
+          <button class="btn btn--secondary" id="btn-ai-gen-char">🤖 AI Generate</button>
           <button class="btn btn--primary" id="btn-add-character">➕ New Character</button>
         </div>
       </div>
@@ -169,6 +174,31 @@
             <p class="empty-state__desc">Choose a quest from the list to see its details and milestones</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         PAGE: LOCATION FORGE
+         ───────────────────────────────────────── -->
+    <section class="page hidden" id="page-location-forge">
+      <div class="page-header">
+        <div class="page-header__info">
+          <h1>Location Forge</h1>
+          <p>Create and manage the places in your story world</p>
+        </div>
+        <div class="page-header__actions">
+          <button class="btn btn--secondary" id="btn-ai-gen-location">🤖 AI Generate</button>
+          <button class="btn btn--primary" id="btn-add-location">➕ New Location</button>
+        </div>
+      </div>
+
+      <div class="location-grid" id="location-grid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Location Detail Panel -->
+      <div class="location-detail-panel" id="location-detail-panel" style="display:none;">
+        <!-- Rendered by JS -->
       </div>
     </section>
 
@@ -406,6 +436,155 @@
       <div class="form-actions">
         <button type="button" class="btn btn--secondary" id="modal-trait-cancel">Cancel</button>
         <button type="submit" class="btn btn--primary">Add Trait</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: AI CHARACTER GENERATOR
+     ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-ai-char">
+  <div class="modal" style="max-width:620px;">
+    <div class="modal__header">
+      <h2 class="modal__title">🤖 AI Character Generator</h2>
+      <button class="modal__close" id="modal-ai-char-close">✕</button>
+    </div>
+    <div id="ai-gen-char-config">
+      <p style="color:var(--color-text-secondary);margin-bottom:var(--space-lg);font-size:0.9rem;">Configure the parameters below and let the AI craft a unique character for your story.</p>
+      <div class="form-group">
+        <label for="ai-char-genre">World Genre</label>
+        <select class="form-select" id="ai-char-genre">
+          <option value="fantasy">High Fantasy</option>
+          <option value="cyberpunk">Cyberpunk</option>
+          <option value="scifi">Sci-Fi</option>
+          <option value="horror">Horror</option>
+          <option value="steampunk">Steampunk</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="ai-char-role">Character Role</label>
+        <select class="form-select" id="ai-char-role">
+          <option value="Protagonist">Protagonist</option>
+          <option value="Antagonist">Antagonist</option>
+          <option value="NPC">NPC</option>
+          <option value="Side Character">Side Character</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="ai-char-theme">Personality Theme</label>
+        <select class="form-select" id="ai-char-theme">
+          <option value="balanced">Balanced</option>
+          <option value="dark">Dark & Mysterious</option>
+          <option value="noble">Noble & Heroic</option>
+          <option value="trickster">Trickster & Cunning</option>
+          <option value="tragic">Tragic Hero</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" id="modal-ai-char-cancel">Cancel</button>
+        <button type="button" class="btn btn--primary" id="btn-ai-char-generate">✨ Generate Character</button>
+      </div>
+    </div>
+    <!-- Generation output area -->
+    <div id="ai-gen-char-output" class="hidden">
+      <div class="ai-gen-result" id="ai-gen-char-result"></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" id="btn-ai-char-retry">🔄 Regenerate</button>
+        <button type="button" class="btn btn--primary" id="btn-ai-char-accept">✅ Add to Library</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: AI LOCATION GENERATOR
+     ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-ai-location">
+  <div class="modal" style="max-width:620px;">
+    <div class="modal__header">
+      <h2 class="modal__title">🤖 AI Location Generator</h2>
+      <button class="modal__close" id="modal-ai-location-close">✕</button>
+    </div>
+    <div id="ai-gen-loc-config">
+      <p style="color:var(--color-text-secondary);margin-bottom:var(--space-lg);font-size:0.9rem;">Describe the type of location you need and let the AI build it for your world.</p>
+      <div class="form-group">
+        <label for="ai-loc-genre">World Genre</label>
+        <select class="form-select" id="ai-loc-genre">
+          <option value="fantasy">High Fantasy</option>
+          <option value="cyberpunk">Cyberpunk</option>
+          <option value="scifi">Sci-Fi</option>
+          <option value="horror">Horror</option>
+          <option value="steampunk">Steampunk</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="ai-loc-type">Location Type</label>
+        <select class="form-select" id="ai-loc-type">
+          <option value="city">City / Town</option>
+          <option value="dungeon">Dungeon / Cave</option>
+          <option value="wilderness">Wilderness / Forest</option>
+          <option value="building">Building / Interior</option>
+          <option value="landmark">Landmark / Monument</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="ai-loc-mood">Atmosphere</label>
+        <select class="form-select" id="ai-loc-mood">
+          <option value="mysterious">Mysterious</option>
+          <option value="dangerous">Dangerous</option>
+          <option value="peaceful">Peaceful</option>
+          <option value="eerie">Eerie & Haunted</option>
+          <option value="bustling">Bustling & Lively</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" id="modal-ai-location-cancel">Cancel</button>
+        <button type="button" class="btn btn--primary" id="btn-ai-loc-generate">✨ Generate Location</button>
+      </div>
+    </div>
+    <div id="ai-gen-loc-output" class="hidden">
+      <div class="ai-gen-result" id="ai-gen-loc-result"></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" id="btn-ai-loc-retry">🔄 Regenerate</button>
+        <button type="button" class="btn btn--primary" id="btn-ai-loc-accept">✅ Add to World</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: NEW LOCATION (Manual)
+     ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-location">
+  <div class="modal">
+    <div class="modal__header">
+      <h2 class="modal__title" id="modal-location-title">Create Location</h2>
+      <button class="modal__close" id="modal-location-close">✕</button>
+    </div>
+    <form id="form-location">
+      <div class="form-group">
+        <label for="loc-name">Location Name</label>
+        <input type="text" class="form-input" id="loc-name" placeholder="e.g. The Whispering Caves" required>
+      </div>
+      <div class="form-group">
+        <label for="loc-type-input">Type</label>
+        <select class="form-select" id="loc-type-input">
+          <option value="city">City / Town</option>
+          <option value="dungeon">Dungeon / Cave</option>
+          <option value="wilderness">Wilderness / Forest</option>
+          <option value="building">Building / Interior</option>
+          <option value="landmark">Landmark / Monument</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="loc-desc-input">Description</label>
+        <textarea class="form-textarea" id="loc-desc-input" placeholder="Describe this location..." rows="3"></textarea>
+      </div>
+      <input type="hidden" id="loc-edit-id" value="">
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" id="modal-location-cancel">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="modal-location-submit">Create</button>
       </div>
     </form>
   </div>

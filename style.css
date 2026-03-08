@@ -1725,3 +1725,231 @@ textarea.char-backstory:focus {
 .items-center { align-items: center; }
 .justify-between { justify-content: space-between; }
 .w-full { width: 100%; }
+
+/* ============================================================
+   19. LOCATION FORGE
+   ============================================================ */
+.location-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-lg);
+}
+
+.location-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.location-card:hover {
+  border-color: var(--color-border-hover);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-glow);
+}
+
+.location-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.location-card__icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.location-card__icon--city       { background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); }
+.location-card__icon--dungeon    { background: linear-gradient(135deg, var(--color-accent-red), var(--color-accent-orange)); }
+.location-card__icon--wilderness { background: linear-gradient(135deg, var(--color-accent-green), var(--color-accent-cyan)); }
+.location-card__icon--building   { background: linear-gradient(135deg, var(--color-accent-amber), var(--color-accent-orange)); }
+.location-card__icon--landmark   { background: linear-gradient(135deg, var(--color-accent-cyan), var(--color-primary)); }
+
+.location-card__name {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.location-card__type {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.location-card__desc {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin-bottom: var(--space-md);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.location-card__tags {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+}
+
+.location-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.location-card__mood {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary-light);
+  font-style: italic;
+}
+
+.location-card--new {
+  border: 2px dashed var(--color-border-hover);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transition-base);
+}
+
+.location-card--new:hover {
+  border-color: var(--color-primary);
+  background: rgba(124, 58, 237, 0.05);
+}
+
+/* ============================================================
+   20. AI GENERATOR RESULTS
+   ============================================================ */
+.ai-gen-result {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.ai-gen-step {
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+  animation: slideUp 0.4s ease;
+}
+
+.ai-gen-step:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.ai-gen-step__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--color-primary-light);
+  margin-bottom: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.ai-gen-step__value {
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.ai-gen-step__value--large {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.ai-gen-step__value--text {
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.ai-gen-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.ai-gen-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-input);
+  border-radius: var(--radius-sm);
+}
+
+.ai-gen-stat__label { font-size: 0.82rem; color: var(--color-text-secondary); }
+.ai-gen-stat__value { font-family: var(--font-heading); font-weight: 700; }
+
+.ai-gen-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.ai-gen-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-2xl);
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.ai-gen-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Location detail features */
+.location-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.location-feature {
+  padding: 0.35rem 0.75rem;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  color: var(--color-primary-light);
+  font-weight: 500;
+}

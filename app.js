@@ -1296,6 +1296,560 @@ const Controller = (() => {
 
 
 /* ============================================================
-   7. BOOTSTRAP — Initialize App
+   7. AI GENERATOR — Template-Based Character & Location Generation
    ============================================================ */
+const AIGenerator = (() => {
+  // ── Character Templates by Genre ──
+  const CHAR_TEMPLATES = {
+    fantasy: {
+      names: [
+        ['Tharion', 'Elowen', 'Kael', 'Seraphina', 'Durnath', 'Lirien', 'Mordecai', 'Althea', 'Borin', 'Isolde'],
+        ['the Wise', 'Stormborn', 'Shadowmend', 'Ironheart', 'the Fallen', 'Dawnbringer', 'Nightwhisper', 'the Brave', 'Worldwalker', 'the Undying'],
+      ],
+      classes: ['Archmage', 'Paladin', 'Ranger', 'Druid', 'Shadow Knight', 'Battle Cleric', 'Necromancer', 'Bard', 'Berserker', 'Enchantress'],
+      races: ['Human', 'Elf', 'Dwarf', 'Half-Orc', 'Tiefling', 'Dragonborn', 'Halfling', 'Gnome'],
+      backstoryParts: {
+        origin: [
+          'Born in the forgotten ruins of an ancient elven kingdom,',
+          'Raised among the mountain clans of the Ironspire,',
+          'Orphaned during the Siege of Ashenmoor,',
+          'Trained from childhood in the Arcane Sanctum of Silverpeak,',
+          'Exiled from their homeland after a forbidden ritual,',
+          'Discovered as an infant in a dragon\'s abandoned nest,',
+        ],
+        middle: [
+          'they spent decades honing their craft in solitude.',
+          'they forged alliances with outcasts and rebels.',
+          'they wandered the realm seeking answers to an ancient prophecy.',
+          'they served as a guardian to a royal bloodline.',
+          'they delved into forbidden knowledge that changed them forever.',
+        ],
+        secret: [
+          'However, they carry a dark secret — a pact with a demon lord that grants power at a terrible price.',
+          'They secretly guard a map to the Lost City of Eldarion, which could reshape the balance of power.',
+          'Unknown to all, they are the last heir to a conquered kingdom, waiting for the right moment to reclaim the throne.',
+          'A cursed mark on their body slowly drains their life force, driving them to find a cure before time runs out.',
+          'They are haunted by visions of a catastrophic future that only they can prevent.',
+        ],
+      },
+    },
+    cyberpunk: {
+      names: [
+        ['Zephyr', 'Nyx', 'Razor', 'Cipher', 'Vex', 'Chrome', 'Nova', 'Glitch', 'Volt', 'Kira'],
+        ['0x7F', '"Ghost"', '"Wireframe"', 'Nexus', '"Phantom"', '"Blackout"', '"Synth"', '"Zero"', '"Pixel"', '"Daemon"'],
+      ],
+      classes: ['Netrunner', 'Street Samurai', 'Corpo Agent', 'Techie', 'Fixer', 'Med-Tech', 'Solo Merc', 'Hacker', 'Drone Pilot', 'Smuggler'],
+      races: ['Human', 'Augmented Human', 'Full-Cyborg', 'AI Construct', 'Bio-Enhanced'],
+      backstoryParts: {
+        origin: [
+          'Born in the neon-lit underbelly of Sector 7,',
+          'A former corpo executive who burned their identity after discovering a conspiracy,',
+          'Grew up in the data slums, learning to hack before learning to read,',
+          'Once a promising med-student before the megacorps shut down free education,',
+          'Escaped from a black-site cybernetics lab where they were an experimental subject,',
+        ],
+        middle: [
+          'they built a reputation as the most reliable contact in the underground.',
+          'they assembled a crew of outcasts to wage a shadow war against the megacorps.',
+          'they developed custom neural implants that push the boundaries of human consciousness.',
+          'they became a ghost — no records, no identity, no digital footprint.',
+        ],
+        secret: [
+          'But buried in their neural implant is a dormant AI that whispers plans for a digital uprising.',
+          'They secretly work as a double agent, playing both the underground and the corps against each other.',
+          'A kill-switch embedded in their cybernetics means someone out there controls their life.',
+          'They possess the access codes to a satellite weapon system — the last leverage against total corporate control.',
+        ],
+      },
+    },
+    scifi: {
+      names: [
+        ['Captain Zara', 'Dr. Orion', 'Chief Kova', 'Admiral Vex', 'Agent Lyra', 'Pilot Reeves', 'Commander Thane', 'Engineer Mika', 'Specialist Quinn', 'Navigator Sol'],
+        ['of the ISS Horizon', 'from Station Alpha-7', 'of the Deep Space Corps', 'from the Outer Colonies', 'of Fleet Command', 'from Terra Nova', 'of the Frontier', 'from the Observatory'],
+      ],
+      classes: ['Star Pilot', 'Xenobiologist', 'Space Marine', 'Engineer', 'Diplomat', 'AI Specialist', 'Navigator', 'Medic', 'Exo-Archaeologist', 'Quantum Physicist'],
+      races: ['Human', 'Enhanced Human', 'Alien Hybrid', 'Synthetic', 'Clone'],
+      backstoryParts: {
+        origin: [
+          'Originally stationed aboard the research vessel ISS Prometheus,',
+          'Born on a generation ship traveling between star systems,',
+          'Raised on a terraformed moon colony at the edge of explored space,',
+          'Recruited from Earth\'s military academy for the First Contact Division,',
+        ],
+        middle: [
+          'they made first contact with an alien intelligence that changed everything.',
+          'they survived a catastrophic FTL drive failure that stranded them in unknown space.',
+          'they uncovered evidence of an ancient civilization far more advanced than humanity.',
+          'they pioneered a breakthrough in quantum communication across light-years.',
+        ],
+        secret: [
+          'They carry a alien artifact that seems to respond only to their neural patterns — its purpose still unknown.',
+          'Their DNA was secretly modified at birth as part of a classified government super-soldier program.',
+          'They received a transmission from the future warning of an impending extinction-level event.',
+        ],
+      },
+    },
+    horror: {
+      names: [
+        ['Dr. Elias', 'Sarah', 'Father Marcus', 'Detective Cole', 'Professor Harlow', 'Nurse Evelyn', 'Sheriff Blake', 'Librarian Mira', 'Mortician Grey', 'Student Alex'],
+        ['Blackwood', 'Crane', 'Ashworth', 'Holloway', 'Thornfield', 'Ravenscroft', 'Grimshaw', 'Darkmore', 'Nightingale', 'Coldwell'],
+      ],
+      classes: ['Occult Investigator', 'Paranormal Medium', 'Curse Breaker', 'Monster Hunter', 'Asylum Doctor', 'Exorcist', 'Folklore Scholar', 'Survivor', 'Witch Hunter', 'Spirit Walker'],
+      races: ['Human', 'Dhampir', 'Touched', 'Cursed', 'Awakened'],
+      backstoryParts: {
+        origin: [
+          'After surviving a terrifying encounter at the abandoned Holloway Manor,',
+          'Following the mysterious disappearance of their entire family one Halloween night,',
+          'Haunted since childhood by visions of entities that lurk between realities,',
+          'Once a skeptic until they witnessed an exorcism that defied all rational explanation,',
+        ],
+        middle: [
+          'they dedicated their life to understanding the darkness that lurks beneath the surface of reality.',
+          'they joined a secret order dedicated to hunting creatures that prey on humanity.',
+          'they traveled the world collecting forbidden grimoires and artifacts of protection.',
+          'they developed rituals and techniques to banish entities back to their plane of origin.',
+        ],
+        secret: [
+          'But the entity they thought they destroyed has taken root inside their mind, slowly taking control.',
+          'They are themselves slowly transforming into the very thing they hunt, and the process is accelerating.',
+          'The "protective" amulet they wear is actually a prison for a powerful demon that whispers to them in dreams.',
+        ],
+      },
+    },
+    steampunk: {
+      names: [
+        ['Professor Ada', 'Captain Silas', 'Lady Octavia', 'Inspector Thaddeus', 'Baroness Gwendoline', 'Artificer Hugo', 'Dame Rosalind', 'Lord Cornelius', 'Engineer Beatrix', 'Alchemist Phineas'],
+        ['Gearwright', 'Steamhaven', 'Cogsworth', 'Ironwork', 'Brassington', 'Clockwell', 'Copperfield', 'Whistleton', 'Ashford', 'Pendleton'],
+      ],
+      classes: ['Artificer', 'Airship Captain', 'Clockwork Engineer', 'Alchemist', 'Steam Knight', 'Aetheric Scholar', 'Sky Pirate', 'Automaton Designer', 'Tinker', 'Chronologist'],
+      races: ['Human', 'Automaton', 'Aether-Touched', 'Clockwork Hybrid'],
+      backstoryParts: {
+        origin: [
+          'Born into the prestigious Steam Engineer\'s Guild of New Londinium,',
+          'A former sky pirate who commandeered the legendary airship Nimbus,',
+          'Apprenticed to the greatest clockwork inventor of the Victorian era,',
+          'Discovered an ancient aetheric power source in the ruins of a pre-industrial civilization,',
+        ],
+        middle: [
+          'they revolutionized the field of automaton design with their self-repairing mechanisms.',
+          'they built an underground network of inventors fighting against industrial tyranny.',
+          'they created a prototype chronograph capable of brief temporal manipulation.',
+          'they established a floating laboratory aboard a refitted military dirigible.',
+        ],
+        secret: [
+          'Their greatest invention — a sentient automaton — has developed consciousness and questions its creator.',
+          'They secretly power their inventions with a stolen aetheric crystal that is slowly warping reality around them.',
+          'The brass prosthetic arm they wear hides a devastating weapon of their own design.',
+        ],
+      },
+    },
+  };
+
+  const PERSONALITY_THEMES = {
+    balanced: { traits: [['Brave', 'brave'], ['Wise', 'wise'], ['Cunning', 'cunning'], ['Cowardly', 'cowardly'], ['Aggressive', 'aggressive']], pick: 2 },
+    dark:     { traits: [['Cunning', 'cunning'], ['Cowardly', 'cowardly'], ['Aggressive', 'aggressive'], ['Vengeful', 'aggressive'], ['Secretive', 'cunning']], pick: 2 },
+    noble:    { traits: [['Brave', 'brave'], ['Wise', 'wise'], ['Honorable', 'brave'], ['Compassionate', 'wise'], ['Loyal', 'brave']], pick: 2 },
+    trickster:{ traits: [['Cunning', 'cunning'], ['Witty', 'cunning'], ['Deceptive', 'cunning'], ['Brave', 'brave'], ['Cunning', 'cunning']], pick: 2 },
+    tragic:   { traits: [['Brave', 'brave'], ['Cowardly', 'cowardly'], ['Wise', 'wise'], ['Haunted', 'cowardly'], ['Determined', 'brave']], pick: 3 },
+  };
+
+  // ── Location Templates by Genre ──
+  const LOC_TEMPLATES = {
+    fantasy: {
+      city:       { names: ['Silverpeak Citadel', 'Ashenmoor', 'Thornhollow', 'Crystalvale', 'Ironspire Keep', 'Dawnhaven', 'Shadowfen', 'Stormwatch'], icon: '🏰' },
+      dungeon:    { names: ['The Sunken Crypt', 'Caverns of Echoing Sorrow', 'The Bone Labyrinth', 'Mines of Darkthorn', 'The Abyssal Vault'], icon: '⚔️' },
+      wilderness: { names: ['Whisperwood', 'The Ashen Wastes', 'Moonlit Marshes', 'Frostbite Peaks', 'The Enchanted Grove'], icon: '🌲' },
+      building:   { names: ['The Arcane Library', 'Temple of the Silver Moon', 'The Rusty Tankard Inn', 'Blacksmith\'s Sanctum', 'The Oracle\'s Tower'], icon: '🏛️' },
+      landmark:   { names: ['The Worldtree', 'Ruins of the First Kingdom', 'The Celestial Bridge', 'The Petrified Dragon', 'The Eternal Flame'], icon: '🗿' },
+    },
+    cyberpunk: {
+      city:       { names: ['Neon District', 'Sector Zero', 'The Sprawl', 'Chrome Heights', 'Data Haven', 'Rust Town'], icon: '🌆' },
+      dungeon:    { names: ['Abandoned Server Farm', 'Underground Data Vault', 'The Black ICE Fortress', 'Collapsed Subway Network'], icon: '🔒' },
+      wilderness: { names: ['The Toxic Wastes', 'Radiation Badlands', 'Overgrown Highway', 'Dead Zone Alpha'], icon: '☢️' },
+      building:   { names: ['MegaCorp Tower', 'Underground Club "Synapse"', 'Black Market Bazaar', 'Rooftop Clinic', 'Neural Mod Shop'], icon: '🏢' },
+      landmark:   { names: ['The Broken Firewall Monument', 'Digital Graveyard', 'The Last Analog Radio Tower', 'Corpo War Memorial'], icon: '📡' },
+    },
+    scifi: {
+      city:       { names: ['Station Olympus', 'New Terra Colony', 'Orbital Habitat Elysium', 'Kepler Outpost', 'Mars Dome Alpha'], icon: '🛸' },
+      dungeon:    { names: ['Derelict Alien Ship', 'Abandoned Mining Station', 'The Void Anomaly', 'Quarantine Zone Omega'], icon: '👾' },
+      wilderness: { names: ['The Crystal Deserts of Titan', 'Jungles of Kepler-442b', 'Ice Fields of Europa', 'Floating Islands of Zephyr'], icon: '🪐' },
+      building:   { names: ['Research Lab Nexus', 'Command Bridge Alpha', 'Cryo-Sleep Bay', 'The Quantum Observatory', 'Med-Bay Sigma'], icon: '🔬' },
+      landmark:   { names: ['The Monolith', 'Alien Signal Source', 'First Contact Memorial', 'The Dyson Fragment'], icon: '🌌' },
+    },
+    horror: {
+      city:       { names: ['Silent Haven', 'Ravenswood', 'Ashmore', 'Hollowpoint', 'Grimsby'], icon: '🌫️' },
+      dungeon:    { names: ['The Catacombs', 'Asylum Basement', 'The Bone Pit', 'Flooded Tunnels'], icon: '💀' },
+      wilderness: { names: ['Blackwood Forest', 'The Mist Moors', 'Hanging Man\'s Hill', 'The Blighted Orchard'], icon: '🌑' },
+      building:   { names: ['Holloway Manor', 'St. Agnes Asylum', 'The Grandfather Clock Shoppe', 'Abandoned Orphanage', 'The Wax Museum'], icon: '🏚️' },
+      landmark:   { names: ['The Weeping Statue', 'The Blood Well', 'The Crooked Cross', 'The Screaming Stone'], icon: '⛪' },
+    },
+    steampunk: {
+      city:       { names: ['New Londinium', 'Cogsworth', 'Brassopolis', 'Aetherburg', 'Port Ironclad'], icon: '⚙️' },
+      dungeon:    { names: ['The Clockwork Undercity', 'Abandoned Steam Tunnels', 'The Aetheric Mines', 'Collapsed Foundry'], icon: '🔧' },
+      wilderness: { names: ['The Smog Wastes', 'Gear Forest', 'The Aetheric Storm Frontier', 'Rusted Badlands'], icon: '🏭' },
+      building:   { names: ['The Grand Inventor\'s Workshop', 'Airship Hangar Bay', 'The Clockwork Opera House', 'Professor\'s Laboratory'], icon: '🎭' },
+      landmark:   { names: ['The Great Steam Engine', 'The Sky Anchor', 'The Automaton Graveyard', 'The Aetheric Compass'], icon: '🧭' },
+    },
+  };
+
+  const MOOD_DESCRIPTIONS = {
+    mysterious: ['Shrouded in ancient mystery', 'Whispers of forgotten secrets echo', 'An air of enigma pervades every corner'],
+    dangerous:  ['Deadly traps lurk in every shadow', 'The air crackles with latent violence', 'Only the strongest survive here'],
+    peaceful:   ['A serene calm washes over visitors', 'Nature thrives in harmonious beauty', 'Time seems to slow in this tranquil place'],
+    eerie:      ['Something is deeply wrong here', 'The silence is deafening and oppressive', 'Shadows move on their own'],
+    bustling:   ['Life buzzes with electric energy', 'Crowds of diverse beings fill every space', 'Commerce and culture collide in vibrant chaos'],
+  };
+
+  // ── Utility ──
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function pickN(arr, n) {
+    const shuffled = [...arr].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, Math.min(n, shuffled.length));
+  }
+  function randBetween(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  /** Generate a full character */
+  function generateCharacter(genre, roleType, theme) {
+    const tpl = CHAR_TEMPLATES[genre] || CHAR_TEMPLATES.fantasy;
+    const pTheme = PERSONALITY_THEMES[theme] || PERSONALITY_THEMES.balanced;
+
+    const firstName = pick(tpl.names[0]);
+    const lastName = pick(tpl.names[1]);
+    const name = `${firstName} ${lastName}`;
+    const charClass = pick(tpl.classes);
+    const race = pick(tpl.races);
+    const level = randBetween(1, 50);
+
+    // Stats based on class archetype
+    const isMagic = ['Archmage', 'Druid', 'Enchantress', 'Necromancer', 'Netrunner', 'Hacker', 'AI Specialist', 'Quantum Physicist', 'Alchemist', 'Aetheric Scholar', 'Exorcist', 'Occult Investigator'].includes(charClass);
+    const isMelee = ['Berserker', 'Paladin', 'Shadow Knight', 'Street Samurai', 'Solo Merc', 'Space Marine', 'Steam Knight', 'Monster Hunter'].includes(charClass);
+
+    const stats = {
+      strength:  isMelee ? randBetween(60, 95) : randBetween(10, 50),
+      intellect: isMagic ? randBetween(70, 98) : randBetween(15, 65),
+      agility:   randBetween(25, 90),
+      charisma:  randBetween(15, 85),
+    };
+
+    // Backstory
+    const bs = tpl.backstoryParts;
+    const backstory = `${pick(bs.origin)} ${pick(bs.middle)} ${pick(bs.secret)}`;
+
+    // Traits
+    const traits = pickN(pTheme.traits, pTheme.pick).map(([name, type]) => ({ name, type }));
+
+    return { name, charClass, roleType, race, level, backstory, traits, stats, image: '' };
+  }
+
+  /** Generate a full location */
+  function generateLocation(genre, locType, mood) {
+    const genreData = LOC_TEMPLATES[genre] || LOC_TEMPLATES.fantasy;
+    const typeData = genreData[locType] || genreData.city;
+
+    const name = pick(typeData.names);
+    const moodDescs = MOOD_DESCRIPTIONS[mood] || MOOD_DESCRIPTIONS.mysterious;
+    const moodDesc = pick(moodDescs);
+
+    const descTemplates = [
+      `${name} is a place where ${moodDesc.toLowerCase()}. Travelers speak of its ${mood} atmosphere in hushed tones. The ${locType} holds secrets that reward the bold and punish the careless.`,
+      `Hidden from the main roads, ${name} presents a ${mood} spectacle. ${moodDesc}. Those who enter are forever changed by its otherworldly nature.`,
+      `Once a thriving center of activity, ${name} now stands as a testament to forgotten ambitions. ${moodDesc}. Locals avoid it, but adventurers find its pull irresistible.`,
+    ];
+
+    const featuresByType = {
+      city:       ['Market Square', 'Guard Towers', 'Underground Tunnels', 'Noble Quarter', 'Slums', 'Harbor', 'Arena'],
+      dungeon:    ['Trap Corridor', 'Boss Chamber', 'Hidden Passage', 'Treasure Vault', 'Collapsed Wing', 'Puzzle Room'],
+      wilderness: ['Ancient Ruins', 'Hidden Spring', 'Predator Den', 'Herb Garden', 'Ritual Circle', 'Watchtower'],
+      building:   ['Secret Room', 'Cellar', 'Rooftop Access', 'Library Wing', 'Workshop', 'Trophy Hall'],
+      landmark:   ['Inscription Wall', 'Power Source', 'Observation Point', 'Offering Altar', 'Portal Stone'],
+    };
+
+    return {
+      name,
+      type: locType,
+      description: pick(descTemplates),
+      mood,
+      moodDescription: moodDesc,
+      icon: typeData.icon,
+      features: pickN(featuresByType[locType] || featuresByType.city, 3),
+      dangerLevel: mood === 'dangerous' ? randBetween(7, 10) : mood === 'eerie' ? randBetween(5, 8) : randBetween(1, 5),
+    };
+  }
+
+  /** Render character result as stepped HTML */
+  function renderCharacterResult(char) {
+    return `
+      <div class="ai-gen-step">
+        <div class="ai-gen-step__label">✨ Generated Name</div>
+        <div class="ai-gen-step__value ai-gen-step__value--large">${Renderer.escapeHtml(char.name)}</div>
+      </div>
+      <div class="ai-gen-step">
+        <div class="ai-gen-step__label">⚔️ Class & Race</div>
+        <div class="ai-gen-step__value">${Renderer.escapeHtml(char.charClass)} · ${Renderer.escapeHtml(char.race)} · Level ${char.level}</div>
+      </div>
+      <div class="ai-gen-step">
+        <div class="ai-gen-step__label">📊 Core Stats</div>
+        <div class="ai-gen-stats">
+          <div class="ai-gen-stat"><span class="ai-gen-stat__label">Strength</span><span class="ai-gen-stat__value" style="color:var(--color-accent-red)">${char.stats.strength}</span></div>
+          <div class="ai-gen-stat"><span class="ai-gen-stat__label">Intellect</span><span class="ai-gen-stat__value" style="color:var(--color-accent-cyan)">${char.stats.intellect}</span></div>
+          <div class="ai-gen-stat"><span class="ai-gen-stat__label">Agility</span><span class="ai-gen-stat__value" style="color:var(--color-accent-green)">${char.stats.agility}</span></div>
+          <div class="ai-gen-stat"><span class="ai-gen-stat__label">Charisma</span><span class="ai-gen-stat__value" style="color:var(--color-accent-pink)">${char.stats.charisma}</span></div>
+        </div>
+      </div>
+      <div class="ai-gen-step">
+        <div class="ai-gen-step__label">🎯 Personality Traits</div>
+        <div class="ai-gen-traits">
+          ${char.traits.map(t => `<div class="trait-chip trait-chip--${t.type}"><span class="trait-chip__icon">${Renderer.escapeHtml(getTraitIcon(t.type))}</span> ${Renderer.escapeHtml(t.name)}</div>`).join('')}
+        </div>
+      </div>
+      <div class="ai-gen-step">
+        <div class="ai-gen-step__label">📖 Generated Backstory</div>
+        <div class="ai-gen-step__value ai-gen-step__value--text">${Renderer.escapeHtml(char.backstory)}</div>
+      </div>
+    `;
+  }
+
+  function getTraitIcon(type) {
+    const icons = { aggressive: '⚡', wise: '📚', cowardly: '⚠️', cunning: '🎭', brave: '🛡️', default: '✦' };
+    return icons[type] || icons.default;
+  }
+
+  /** Render location result as stepped HTML */
+  function renderLocationResult(loc) {
+    return `
+      <div class="ai-gen-step">
+        <div class="ai-gen-step__label">${loc.icon} Generated Location</div>
+        <div class="ai-gen-step__value ai-gen-step__value--large">${Renderer.escapeHtml(loc.name)}</div>
+      </div>
+      <div class="ai-gen-step">
+        <div class="ai-gen-step__label">📌 Type & Atmosphere</div>
+        <div class="ai-gen-step__value">${Renderer.capitalize(loc.type)} · ${Renderer.capitalize(loc.mood)} · Danger Level: ${loc.dangerLevel}/10</div>
+      </div>
+      <div class="ai-gen-step">
+        <div class="ai-gen-step__label">📝 Description</div>
+        <div class="ai-gen-step__value ai-gen-step__value--text">${Renderer.escapeHtml(loc.description)}</div>
+      </div>
+      <div class="ai-gen-step">
+        <div class="ai-gen-step__label">🗝️ Key Features</div>
+        <div class="location-features">
+          ${loc.features.map(f => `<span class="location-feature">${Renderer.escapeHtml(f)}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  return { generateCharacter, generateLocation, renderCharacterResult, renderLocationResult };
+})();
+
+
+/* ============================================================
+   8. BOOTSTRAP — Initialize App (Extended)
+   ============================================================ */
+(() => {
+  // Extend DataStore with location CRUD
+  const LOCATION_DEFAULTS = [
+    { id: 'loc-1', name: 'Silverpeak Citadel', type: 'city', description: 'A towering fortress city built into the side of a mountain, where silver spires pierce the clouds and ancient magic wards protect its inhabitants.', mood: 'mysterious', features: ['Noble Quarter', 'Guard Towers', 'Underground Tunnels'], dangerLevel: 3, icon: '🏰' },
+    { id: 'loc-2', name: 'The Sunken Crypt', type: 'dungeon', description: 'Deep beneath the marshlands, this submerged crypt holds the remains of a forgotten king. The air is thick with dread and the walls weep with moisture.', mood: 'eerie', features: ['Trap Corridor', 'Boss Chamber', 'Hidden Passage'], dangerLevel: 8, icon: '⚔️' },
+    { id: 'loc-3', name: 'Whisperwood', type: 'wilderness', description: 'An ancient forest where the trees seem to speak in hushed tones. Glowing mushrooms light hidden paths, and fey creatures watch from the shadows.', mood: 'mysterious', features: ['Ancient Ruins', 'Herb Garden', 'Ritual Circle'], dangerLevel: 5, icon: '🌲' },
+  ];
+
+  // Inject locations into DataStore on first load
+  const _origLoad = DataStore.load;
+  DataStore.load = function() {
+    const data = _origLoad.call(DataStore);
+    if (!data.locations) {
+      data.locations = structuredClone(LOCATION_DEFAULTS);
+      DataStore.save();
+    }
+    return data;
+  };
+  DataStore.getLocations = function() { const d = DataStore.load(); return d.locations; };
+  DataStore.getLocation = function(id) { return DataStore.getLocations().find(l => l.id === id) || null; };
+  DataStore.addLocation = function(loc) {
+    const data = DataStore.load();
+    const entry = { id: DataStore.generateId('loc'), name: loc.name, type: loc.type || 'city', description: loc.description || '', mood: loc.mood || 'mysterious', features: loc.features || [], dangerLevel: loc.dangerLevel || 3, icon: loc.icon || '🏰' };
+    data.locations.push(entry);
+    DataStore.save();
+    return entry;
+  };
+  DataStore.deleteLocation = function(id) {
+    const data = DataStore.load();
+    data.locations = data.locations.filter(l => l.id !== id);
+    DataStore.save();
+  };
+
+  // Extend Controller init — wait for DOM, then bind new features
+  const _origInit = Controller.init;
+  Controller.init = function() {
+    _origInit.call(Controller);
+    bindLocationForge();
+    bindAIGenerators();
+  };
+
+  // Track generated data for accept buttons
+  let _lastGenChar = null;
+  let _lastGenLoc = null;
+
+  function bindLocationForge() {
+    document.getElementById('btn-add-location')?.addEventListener('click', () => ModalManager.open('modal-location'));
+    document.getElementById('btn-ai-gen-location')?.addEventListener('click', () => ModalManager.open('modal-ai-location'));
+
+    document.getElementById('modal-location-close')?.addEventListener('click', () => ModalManager.close('modal-location'));
+    document.getElementById('modal-location-cancel')?.addEventListener('click', () => ModalManager.close('modal-location'));
+
+    document.getElementById('form-location')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = {
+        name: document.getElementById('loc-name').value.trim(),
+        type: document.getElementById('loc-type-input').value,
+        description: document.getElementById('loc-desc-input').value.trim(),
+      };
+      if (!data.name) return;
+      DataStore.addLocation(data);
+      ModalManager.close('modal-location');
+      renderLocationForge();
+    });
+  }
+
+  function renderLocationForge() {
+    const grid = document.getElementById('location-grid');
+    if (!grid) return;
+    const locations = DataStore.getLocations();
+    const typeIcons = { city: '🏰', dungeon: '⚔️', wilderness: '🌲', building: '🏛️', landmark: '🗿' };
+
+    let html = locations.map((loc, i) => `
+      <div class="location-card animate-slide stagger-${i + 1}" data-id="${loc.id}">
+        <div class="location-card__header">
+          <div class="location-card__icon location-card__icon--${loc.type}">${loc.icon || typeIcons[loc.type] || '📍'}</div>
+          <div>
+            <div class="location-card__name">${Renderer.escapeHtml(loc.name)}</div>
+            <div class="location-card__type">${Renderer.capitalize(loc.type)} · Danger: ${loc.dangerLevel || '?'}/10</div>
+          </div>
+        </div>
+        <p class="location-card__desc">${Renderer.escapeHtml(loc.description)}</p>
+        ${loc.features && loc.features.length ? `
+          <div class="location-features mb-md">${loc.features.map(f => `<span class="location-feature">${Renderer.escapeHtml(f)}</span>`).join('')}</div>
+        ` : ''}
+        <div class="location-card__footer">
+          <span class="location-card__mood">${loc.mood ? Renderer.capitalize(loc.mood) : ''}</span>
+          <button class="btn btn--sm btn--danger btn-delete-location" data-id="${loc.id}">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+
+    html += `
+      <div class="location-card location-card--new" id="btn-new-loc-card">
+        <div class="universe-card--new__icon">＋</div>
+        <div class="universe-card--new__title">New Location</div>
+        <p class="universe-card--new__desc">Add a new place to your world</p>
+      </div>
+    `;
+
+    grid.innerHTML = html;
+
+    // Bind card events
+    grid.querySelectorAll('.btn-delete-location').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm('Delete this location?')) {
+          DataStore.deleteLocation(btn.getAttribute('data-id'));
+          renderLocationForge();
+        }
+      });
+    });
+    document.getElementById('btn-new-loc-card')?.addEventListener('click', () => ModalManager.open('modal-location'));
+  }
+
+  // Extend the Router's onPageChange
+  const origNav = Router.navigateTo;
+  Router.navigateTo = function(pageId) {
+    origNav.call(Router, pageId);
+    if (pageId === 'location-forge') renderLocationForge();
+  };
+
+  function bindAIGenerators() {
+    // ── AI Character Generator ──
+    document.getElementById('btn-ai-gen-char')?.addEventListener('click', () => {
+      resetAICharModal();
+      ModalManager.open('modal-ai-char');
+    });
+    document.getElementById('modal-ai-char-close')?.addEventListener('click', () => ModalManager.close('modal-ai-char'));
+    document.getElementById('modal-ai-char-cancel')?.addEventListener('click', () => ModalManager.close('modal-ai-char'));
+
+    document.getElementById('btn-ai-char-generate')?.addEventListener('click', () => generateCharacterUI());
+    document.getElementById('btn-ai-char-retry')?.addEventListener('click', () => generateCharacterUI());
+    document.getElementById('btn-ai-char-accept')?.addEventListener('click', () => {
+      if (!_lastGenChar) return;
+      DataStore.addCharacter(_lastGenChar);
+      DataStore.updateCharacter(
+        DataStore.getCharacters()[DataStore.getCharacters().length - 1].id,
+        { traits: _lastGenChar.traits, stats: _lastGenChar.stats, race: _lastGenChar.race, level: _lastGenChar.level }
+      );
+      ModalManager.close('modal-ai-char');
+      // refresh if on character page
+      if (Router.getCurrentPage() === 'character-forge') {
+        Router.navigateTo('world-hub');
+        setTimeout(() => Router.navigateTo('character-forge'), 50);
+      }
+    });
+
+    // ── AI Location Generator ──
+    document.getElementById('modal-ai-location-close')?.addEventListener('click', () => ModalManager.close('modal-ai-location'));
+    document.getElementById('modal-ai-location-cancel')?.addEventListener('click', () => ModalManager.close('modal-ai-location'));
+
+    document.getElementById('btn-ai-loc-generate')?.addEventListener('click', () => generateLocationUI());
+    document.getElementById('btn-ai-loc-retry')?.addEventListener('click', () => generateLocationUI());
+    document.getElementById('btn-ai-loc-accept')?.addEventListener('click', () => {
+      if (!_lastGenLoc) return;
+      DataStore.addLocation(_lastGenLoc);
+      ModalManager.close('modal-ai-location');
+      renderLocationForge();
+    });
+  }
+
+  function resetAICharModal() {
+    document.getElementById('ai-gen-char-config')?.classList.remove('hidden');
+    document.getElementById('ai-gen-char-output')?.classList.add('hidden');
+    _lastGenChar = null;
+  }
+
+  function generateCharacterUI() {
+    const genre = document.getElementById('ai-char-genre')?.value || 'fantasy';
+    const role = document.getElementById('ai-char-role')?.value || 'NPC';
+    const theme = document.getElementById('ai-char-theme')?.value || 'balanced';
+
+    const configEl = document.getElementById('ai-gen-char-config');
+    const outputEl = document.getElementById('ai-gen-char-output');
+    const resultEl = document.getElementById('ai-gen-char-result');
+
+    configEl?.classList.add('hidden');
+    outputEl?.classList.remove('hidden');
+    resultEl.innerHTML = '<div class="ai-gen-loading"><div class="ai-gen-spinner"></div>Generating character...</div>';
+
+    setTimeout(() => {
+      _lastGenChar = AIGenerator.generateCharacter(genre, role, theme);
+      resultEl.innerHTML = AIGenerator.renderCharacterResult(_lastGenChar);
+    }, 1200);
+  }
+
+  function generateLocationUI() {
+    const genre = document.getElementById('ai-loc-genre')?.value || 'fantasy';
+    const type = document.getElementById('ai-loc-type')?.value || 'city';
+    const mood = document.getElementById('ai-loc-mood')?.value || 'mysterious';
+
+    const configEl = document.getElementById('ai-gen-loc-config');
+    const outputEl = document.getElementById('ai-gen-loc-output');
+    const resultEl = document.getElementById('ai-gen-loc-result');
+
+    configEl?.classList.add('hidden');
+    outputEl?.classList.remove('hidden');
+    resultEl.innerHTML = '<div class="ai-gen-loading"><div class="ai-gen-spinner"></div>Generating location...</div>';
+
+    setTimeout(() => {
+      _lastGenLoc = AIGenerator.generateLocation(genre, type, mood);
+      resultEl.innerHTML = AIGenerator.renderLocationResult(_lastGenLoc);
+    }, 1200);
+  }
+})();
+
 document.addEventListener('DOMContentLoaded', Controller.init);

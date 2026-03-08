@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MuseAI – A creative writing dashboard for building story universes, characters, and quests with AI-powered narrative assistance.">
+  <title>MuseAI – Creative Engine</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ═══════════════════════════════════════════
+       SIDEBAR NAVIGATION
+       ═══════════════════════════════════════════ -->
+  <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">☰</button>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <div class="sidebar__logo">✨</div>
+      <div>
+        <div class="sidebar__title">MuseAI</div>
+        <div class="sidebar__subtitle">Creative Engine</div>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="nav-item active" data-page="world-hub" id="nav-world-hub">
+        <span class="nav-item__icon">🌍</span>
+        <span>World Hub</span>
+      </div>
+      <div class="nav-item" data-page="character-forge" id="nav-character-forge">
+        <span class="nav-item__icon">⚔️</span>
+        <span>Character Forge</span>
+      </div>
+      <div class="nav-item" data-page="quest-ledger" id="nav-quest-ledger">
+        <span class="nav-item__icon">📜</span>
+        <span>Quest Ledger</span>
+      </div>
+      <div class="nav-item" data-page="lore-master" id="nav-lore-master">
+        <span class="nav-item__icon">🤖</span>
+        <span>Lore-Master AI</span>
+      </div>
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__avatar"></div>
+      <div>
+        <div class="sidebar__user-name">Bedirhan</div>
+        <div class="sidebar__user-role">Story Architect</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN CONTENT AREA
+       ═══════════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- ─────────────────────────────────────────
+         PAGE: THE WORLD HUB
+         ───────────────────────────────────────── -->
+    <section class="page animate-fade" id="page-world-hub">
+      <div class="page-header">
+        <div class="page-header__info">
+          <h1>The World Hub</h1>
+          <p>Manage and explore your story universes</p>
+        </div>
+        <div class="page-header__actions">
+          <button class="btn btn--secondary" id="btn-settings">⚙️ Settings</button>
+          <button class="btn btn--primary" id="btn-quick-import">⚡ Quick Import</button>
+        </div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar" id="stats-bar">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Universe Grid -->
+      <div class="section-header">
+        <h2>My Universes</h2>
+        <a href="#" class="section-header__link">View all →</a>
+      </div>
+      <div class="universe-grid" id="universe-grid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- AI Tip Banner -->
+      <div class="ai-tip-banner" id="ai-tip-banner">
+        <div class="ai-tip-banner__icon">💡</div>
+        <div class="ai-tip-banner__content">
+          <div class="ai-tip-banner__title">Lore-Master Tip</div>
+          <p class="ai-tip-banner__text" id="ai-tip-text">"Consider adding a faction of underground data-merchants to Cyberpunk Istanbul to deepen the conflict between the Corporate Sector and the Old District."</p>
+        </div>
+        <button class="btn btn--primary" id="btn-discuss-ai">🗪 Discuss with AI</button>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         PAGE: CHARACTER FORGE
+         ───────────────────────────────────────── -->
+    <section class="page hidden" id="page-character-forge">
+      <div class="page-header">
+        <div class="page-header__info">
+          <h1>Character Forge</h1>
+          <p>Craft and manage your story's characters</p>
+        </div>
+        <div class="page-header__actions">
+          <button class="btn btn--primary" id="btn-add-character">➕ New Character</button>
+        </div>
+      </div>
+
+      <div class="forge-layout">
+        <!-- Left: Character List -->
+        <div class="char-list" id="char-list-panel">
+          <div class="char-list__header">
+            <h3>Library</h3>
+          </div>
+          <div id="char-list">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Center: Character Detail -->
+        <div class="char-detail" id="char-detail">
+          <div class="empty-state" id="char-empty-state">
+            <div class="empty-state__icon">⚔️</div>
+            <div class="empty-state__title">Select a Character</div>
+            <p class="empty-state__desc">Choose a character from the library to edit their details</p>
+          </div>
+          <!-- Character detail content rendered by JS -->
+        </div>
+
+        <!-- Right: Stats & AI Panel -->
+        <div class="char-stats-panel" id="char-stats-panel" style="display:none;">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         PAGE: QUEST LEDGER
+         ───────────────────────────────────────── -->
+    <section class="page hidden" id="page-quest-ledger">
+      <div class="page-header">
+        <div class="page-header__info">
+          <h1>Quest Ledger</h1>
+          <p>Track quests, milestones, and narrative arcs</p>
+        </div>
+        <div class="page-header__actions">
+          <button class="btn btn--primary" id="btn-add-quest">➕ New Quest</button>
+        </div>
+      </div>
+
+      <div class="quest-layout">
+        <!-- Quest List -->
+        <div class="quest-list" id="quest-list">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Quest Detail Panel -->
+        <div class="quest-detail" id="quest-detail">
+          <div class="empty-state" id="quest-empty-state">
+            <div class="empty-state__icon">📜</div>
+            <div class="empty-state__title">Select a Quest</div>
+            <p class="empty-state__desc">Choose a quest from the list to see its details and milestones</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         PAGE: LORE-MASTER AI
+         ───────────────────────────────────────── -->
+    <section class="page hidden" id="page-lore-master">
+      <div class="ai-page">
+        <div class="ai-hero">
+          <div class="ai-hero__icon">🤖</div>
+          <h1>Lore-Master Engine</h1>
+          <p>Your AI-powered narrative consultant. Analyze character consistency, detect plot holes, and get creative story suggestions.</p>
+        </div>
+
+        <!-- Scenario Cards -->
+        <div class="section-header">
+          <h2>Try a Scenario</h2>
+        </div>
+        <div class="ai-scenarios" id="ai-scenarios">
+          <div class="scenario-card" data-scenario="dragon">
+            <div class="scenario-card__emoji">🐉</div>
+            <div class="scenario-card__title">Dragon Encounter</div>
+            <p class="scenario-card__desc">Ahmethan faces a dragon. How would a cowardly character react?</p>
+          </div>
+          <div class="scenario-card" data-scenario="betrayal">
+            <div class="scenario-card__emoji">🗡️</div>
+            <div class="scenario-card__title">Ally Betrayal</div>
+            <p class="scenario-card__desc">A trusted ally reveals their true colors. Check character consistency.</p>
+          </div>
+          <div class="scenario-card" data-scenario="treasure">
+            <div class="scenario-card__emoji">💎</div>
+            <div class="scenario-card__title">Hidden Treasure</div>
+            <p class="scenario-card__desc">A legendary artifact is discovered. Who would go after it?</p>
+          </div>
+        </div>
+
+        <!-- AI Chat Demo -->
+        <div class="ai-chat" id="ai-chat">
+          <div class="ai-chat__header">
+            <div class="ai-chat__status"></div>
+            <span>Lore-Master AI — Online</span>
+          </div>
+          <div class="ai-chat__messages" id="ai-messages">
+            <div class="ai-msg ai-msg--ai">
+              <div class="ai-msg__label">Lore-Master AI</div>
+              <div>Merhaba! Ben Lore-Master AI. Karakter tutarlılığı ve hikaye önerileri konusunda size yardımcı olabilirim. Bir senaryo seçin veya doğrudan bir soru sorun.</div>
+            </div>
+          </div>
+          <div class="ai-chat__input-area">
+            <input type="text" class="ai-chat__input" id="ai-input" placeholder="Ask the Lore-Master..." autocomplete="off">
+            <button class="btn btn--primary" id="btn-ai-send">Send</button>
+          </div>
+        </div>
+
+        <!-- Architecture Diagram -->
+        <div class="ai-architecture">
+          <h3>⚙️ System Architecture (High-Level)</h3>
+          <div class="arch-flow" id="arch-flow">
+            <div class="arch-node">
+              <div class="arch-node__icon">🖥️</div>
+              <div class="arch-node__label">Frontend</div>
+              <div class="arch-node__sub">HTML / CSS / JS</div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-node">
+              <div class="arch-node__icon">📊</div>
+              <div class="arch-node__label">Character Data</div>
+              <div class="arch-node__sub">JSON / LocalStorage</div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-node">
+              <div class="arch-node__icon">🤖</div>
+              <div class="arch-node__label">AI Engine</div>
+              <div class="arch-node__sub">LLM / OpenAI API</div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-node">
+              <div class="arch-node__icon">💡</div>
+              <div class="arch-node__label">Insights</div>
+              <div class="arch-node__sub">Analysis & Suggestions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: NEW UNIVERSE
+     ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-universe">
+  <div class="modal">
+    <div class="modal__header">
+      <h2 class="modal__title" id="modal-universe-title">Create Universe</h2>
+      <button class="modal__close" id="modal-universe-close">✕</button>
+    </div>
+    <form id="form-universe">
+      <div class="form-group">
+        <label for="universe-name">Universe Name</label>
+        <input type="text" class="form-input" id="universe-name" placeholder="e.g. Cyberpunk Istanbul" required>
+      </div>
+      <div class="form-group">
+        <label for="universe-genre">Genre</label>
+        <select class="form-select" id="universe-genre">
+          <option value="cyberpunk">Cyberpunk</option>
+          <option value="fantasy">High Fantasy</option>
+          <option value="scifi">Sci-Fi</option>
+          <option value="horror">Horror</option>
+          <option value="steampunk">Steampunk</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="universe-desc">Description</label>
+        <textarea class="form-textarea" id="universe-desc" placeholder="Describe your universe..." rows="3"></textarea>
+      </div>
+      <input type="hidden" id="universe-edit-id" value="">
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" id="modal-universe-cancel">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="modal-universe-submit">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: NEW CHARACTER
+     ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-character">
+  <div class="modal">
+    <div class="modal__header">
+      <h2 class="modal__title" id="modal-character-title">Create Character</h2>
+      <button class="modal__close" id="modal-character-close">✕</button>
+    </div>
+    <form id="form-character">
+      <div class="form-group">
+        <label for="char-name">Character Name</label>
+        <input type="text" class="form-input" id="char-name" placeholder="e.g. Aethelgard the Wise" required>
+      </div>
+      <div class="form-group">
+        <label for="char-class">Class / Role</label>
+        <input type="text" class="form-input" id="char-class" placeholder="e.g. Archmage, Warrior, Rogue">
+      </div>
+      <div class="form-group">
+        <label for="char-role-type">Type</label>
+        <select class="form-select" id="char-role-type">
+          <option value="Protagonist">Protagonist</option>
+          <option value="Antagonist">Antagonist</option>
+          <option value="NPC">NPC</option>
+          <option value="Side Character">Side Character</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="char-backstory">Backstory</label>
+        <textarea class="form-textarea" id="char-backstory-input" placeholder="Write the character's origin story..." rows="3"></textarea>
+      </div>
+      <input type="hidden" id="char-edit-id" value="">
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" id="modal-character-cancel">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="modal-character-submit">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: NEW QUEST
+     ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-quest">
+  <div class="modal">
+    <div class="modal__header">
+      <h2 class="modal__title" id="modal-quest-title">Create Quest</h2>
+      <button class="modal__close" id="modal-quest-close">✕</button>
+    </div>
+    <form id="form-quest">
+      <div class="form-group">
+        <label for="quest-name">Quest Title</label>
+        <input type="text" class="form-input" id="quest-name" placeholder="e.g. The Great Siege" required>
+      </div>
+      <div class="form-group">
+        <label for="quest-type">Quest Type</label>
+        <select class="form-select" id="quest-type">
+          <option value="main">Main Questline</option>
+          <option value="side">Side Quest</option>
+          <option value="character">Character Arc</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="quest-status-input">Status</label>
+        <select class="form-select" id="quest-status-input">
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="locked">Locked</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="quest-desc-input">Description</label>
+        <textarea class="form-textarea" id="quest-desc-input" placeholder="Describe the quest objectives..." rows="3"></textarea>
+      </div>
+      <input type="hidden" id="quest-edit-id" value="">
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" id="modal-quest-cancel">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="modal-quest-submit">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: ADD TRAIT
+     ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-trait">
+  <div class="modal" style="max-width: 380px;">
+    <div class="modal__header">
+      <h2 class="modal__title">Add Trait</h2>
+      <button class="modal__close" id="modal-trait-close">✕</button>
+    </div>
+    <form id="form-trait">
+      <div class="form-group">
+        <label for="trait-name">Trait Name</label>
+        <input type="text" class="form-input" id="trait-name" placeholder="e.g. Brave, Cunning, Wise" required>
+      </div>
+      <div class="form-group">
+        <label for="trait-type">Trait Style</label>
+        <select class="form-select" id="trait-type">
+          <option value="default">Default</option>
+          <option value="aggressive">Aggressive</option>
+          <option value="wise">Wise</option>
+          <option value="cowardly">Cowardly</option>
+          <option value="cunning">Cunning</option>
+          <option value="brave">Brave</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" id="modal-trait-cancel">Cancel</button>
+        <button type="submit" class="btn btn--primary">Add Trait</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

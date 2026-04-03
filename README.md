@@ -121,4 +121,4 @@ This project is created for educational purposes as part of a university assignm
 
 ## 👤 Author
 
-**Bedirhan** — Story Architect & Developer
+**Mert Kedik** — Story Architect & Developer

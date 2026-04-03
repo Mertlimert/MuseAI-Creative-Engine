@@ -2,7 +2,7 @@
 
 **Project Name:** MuseAI – Creative Engine (D&D Campaign Edition)  
 **Git Repository:** [https://github.com/Mertlimert/MuseAI-Creative-Engine.git](https://github.com/Mertlimert/MuseAI-Creative-Engine.git)  
-**Author:** Bedirhan  
+**Author:** Mert Kedik  
 
 ---
 

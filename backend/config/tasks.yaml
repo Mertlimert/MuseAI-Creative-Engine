@@ -1,24 +1,17 @@
 resolve_action:
   description: >
-    Evaluate the player's action.
-    Player stats: {player_stats}
-    Player action: "{action}"
-    Location: {location_context}
+    Evaluate the player's latest action and advance the campaign.
     
-    1. Read the player's action carefully.
-    2. Determine if it succeeds based on their stats.
-    3. Write a vivid narration of the outcome.
+    Current Player Stats: {player_stats}
+    Location Concept: {location_context}
+    Overall Story Premise: {story_premise}
+    Campaign History: {campaign_history}
+    Player's New Action: "{action}"
+    
+    1. Read the past Campaign History to understand the current situation.
+    2. Read the Player's New Action.
+    3. Generate a vivid narration of what happens next. If it's an attack or a skill check, use the Player Stats to determine success/failure.
+    4. If there are any characters in the scene who should react to what just happened, or if a new character appears, add them to the "npcs_to_activate" list. Provide their name, persona, and strict instructions on what they should respond to.
   expected_output: >
-    A dramatic narration (1-2 paragraphs) from the Game Master detailing the immediate result of the player's action.
+    A JSON object matching the GMResponse schema, containing the narration and an optional list of NPCs to speak.
   agent: game_master
-
-roleplay_reaction:
-  description: >
-    React to the Game Master's narration and the player's action.
-    NPC Persona: {npc_context}
-    
-    1. Read the GM's narration.
-    2. Produce your in-character dialogue or action as the NPC.
-  expected_output: >
-    The exact words spoken by the NPC and their physical reaction, presented in character (1 paragraph).
-  agent: npc_actor

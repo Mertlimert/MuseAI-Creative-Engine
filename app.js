@@ -1859,6 +1859,10 @@ const AIGenerator = (() => {
     const locSelect = document.getElementById('enc-location');
     const inputAction = document.getElementById('ai-input');
     
+    // State logic for Campaign
+    let campaignHistory = "";
+    let npcHistories = {};
+    
     // Populate dropdowns when page is active
     const populateDropdowns = () => {
       const chars = DataStore.getCharacters();
@@ -1884,12 +1888,16 @@ const AIGenerator = (() => {
     btnStart?.addEventListener('click', () => {
       const charId = charSelect.value;
       const locId = locSelect.value;
-      const npcDesc = document.getElementById('enc-npc').value.trim();
+      const premiseDesc = document.getElementById('enc-premise').value.trim();
 
-      if (!charId || !locId || !npcDesc) {
-        alert('Please select a character, location, and describe the NPC.');
+      if (!charId || !locId || !premiseDesc) {
+        alert('Please select a character, location, and set a story premise.');
         return;
       }
+
+      // Reset histories
+      campaignHistory = "--- CAMPAIGN START ---\\nInitial Premise: " + premiseDesc + "\\n";
+      npcHistories = {};
 
       document.getElementById('encounter-setup').classList.add('hidden');
       document.getElementById('ai-chat').classList.remove('hidden');
@@ -1898,7 +1906,7 @@ const AIGenerator = (() => {
       msgs.innerHTML = `
         <div class="ai-msg ai-msg--ai">
           <div class="ai-msg__label">Dungeon Master System</div>
-          <div>Encounter started! The Game Master and the NPC are ready. What do you do?</div>
+          <div>Campaign started! You are now in the world based on your premise. What do you do?</div>
         </div>
       `;
     });
@@ -1913,9 +1921,11 @@ const AIGenerator = (() => {
       const action = inputAction.value.trim();
       if (!action) return;
       
+      campaignHistory += `\\nPlayer Action: ${action}`;
+
       const char = DataStore.getCharacter(charSelect.value);
       const loc = DataStore.getLocation(locSelect.value);
-      const npc_context = document.getElementById('enc-npc').value.trim();
+      const story_premise = document.getElementById('enc-premise').value.trim();
       
       const player_stats = `Stats: Strength ${char.stats.strength}, Intellect ${char.stats.intellect}, Agility ${char.stats.agility}, Charisma ${char.stats.charisma}. Traits: ${char.traits.map(t => t.name).join(', ')}`;
       const location_context = `${loc.name} (${loc.type}). Mood: ${loc.moodDescription}. Danger Level: ${loc.dangerLevel}. Features: ${loc.features.join(', ')}`;
@@ -1943,9 +1953,11 @@ const AIGenerator = (() => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             player_stats,
+            story_premise,
+            campaign_history: campaignHistory,
+            npc_histories: npcHistories,
             action,
-            location_context,
-            npc_context
+            location_context
           })
         });
 
@@ -1953,25 +1965,38 @@ const AIGenerator = (() => {
         msgs.removeChild(loadingDiv);
         
         if (data.status === 'success') {
-          // Add GM
+          const result = data.data;
+          
+          campaignHistory += `\\nGame Master: ${result.gm_narration}`;
+          
+          // Add GM Narration
           const gmDiv = document.createElement('div');
           gmDiv.className = 'ai-msg ai-msg--ai';
-          gmDiv.innerHTML = `<div class="ai-msg__label">Dungeon Master (CrewAI)</div><div>${Renderer.escapeHtml(data.data.gm_narration)}</div>`;
+          gmDiv.innerHTML = `<div class="ai-msg__label">Dungeon Master (CrewAI)</div><div>${Renderer.escapeHtml(result.gm_narration)}</div>`;
           msgs.appendChild(gmDiv);
           
-          // Add NPC
-          const npcDiv = document.createElement('div');
-          npcDiv.className = 'ai-msg ai-msg--ai';
-          npcDiv.innerHTML = `<div class="ai-msg__label">NPC (CrewAI)</div><div><em>${Renderer.escapeHtml(data.data.npc_reaction)}</em></div>`;
-          msgs.appendChild(npcDiv);
+          // Add Sub-Agents (NPC) Dialogues
+          if (result.npc_reactions && result.npc_reactions.length > 0) {
+            for (const npc of result.npc_reactions) {
+              campaignHistory += `\\n${npc.name}: ${npc.dialogue}`;
+              
+              if (!npcHistories[npc.name]) npcHistories[npc.name] = "";
+              npcHistories[npc.name] += `\\nPlayer did: ${action}\\nYou replied: ${npc.dialogue}`;
+              
+              const npcDiv = document.createElement('div');
+              npcDiv.className = 'ai-msg ai-msg--ai';
+              npcDiv.innerHTML = `<div class="ai-msg__label">${Renderer.escapeHtml(npc.name)} (Sub-Agent)</div><div><em>${Renderer.escapeHtml(npc.dialogue)}</em></div>`;
+              msgs.appendChild(npcDiv);
+            }
+          }
         } else {
-          throw new Error(data.message || 'Error running CrewAI');
+          throw new Error(data.message || 'Error running CrewAI Backend');
         }
       } catch (err) {
-        msgs.removeChild(loadingDiv);
+        if(msgs.contains(loadingDiv)) msgs.removeChild(loadingDiv);
         const errDiv = document.createElement('div');
         errDiv.className = 'ai-msg ai-msg--ai';
-        errDiv.innerHTML = `<div class="ai-msg__label">Error</div><div style="color:red;">Failed to connect to Local CrewAI Backend. Make sure your Python server is running on port 8000. Error: ${err.message}</div>`;
+        errDiv.innerHTML = `<div class="ai-msg__label">Error</div><div style="color:red;">API Failure. Error: ${err.message}</div>`;
         msgs.appendChild(errDiv);
       }
       msgs.scrollTop = msgs.scrollHeight;

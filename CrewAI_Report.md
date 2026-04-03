@@ -94,25 +94,26 @@ Here is a step-by-step example of how the CrewAI system is running the encounter
 
 ### Step 1: Campaign Initialization (Frontend)
 The user selects a character and location from Homework 2 databases and sets a Story Premise: *"I am searching for the legendary 'Sunken Atrium'..."*
-![Encounter Setup](assets/report/1_setup.png)
+![Encounter Setup](assets/report/setup.png)
 
 ### Step 2: Player Action Processing
 The player submits an action relying on their specific class traits: *"I focus my intense intellect to analyze the ancient magical ward..."* The frontend sends this action along with the character's INT stat to the CrewAI backend.
-![Player Action](assets/report/2_action_input.png)
+![Player Action](assets/report/action.png)
 
 ### Step 3: Game Master Processing & Narration (Pass 1)
 **Terminal view:** The `resolve_action` task executes. The Game Master processes the intellect stat against the magical ward, concluding it is a success. It outputs a Pydantic JSON generating the narration and instructing an NPC named "Elianor Vane" to react.
-![Terminal GM Task](assets/report/3_terminal_gm.png)
+![Terminal GM Task](assets/report/term_1.png)
 
 **UI view:** The frontend perfectly renders the Dungeon Master's dramatic narration of the ward shattering and the arrival of the translucent figure.
-![UI GM Narration](assets/report/4_ui_gm.png)
+![UI GM Narration](assets/report/gm_ui.png)
 
 ### Step 4: Sub-Agent Spawning & Interaction (Pass 2)
 **Terminal view:** A completely new CrewAI task is dynamically generated for the entity "Elianor Vane, The Bound Warden". She receives her persona rules from the GM and executes her response.
-![Terminal NPC Sub-agent](assets/report/5_terminal_npc.png)
+![Terminal NPC Sub-agent 1](assets/report/term_2.png)
+![Terminal NPC Sub-agent 2](assets/report/term_3.png)
 
 **UI view:** Elianor Vane responds to the player in-character as a separate, distinct entity in the chat log, completely separated from the Game Master's global narration. The API request completes successfully (`POST /api/action HTTP/1.1" 200 OK`).
-![UI NPC Dialogue](assets/report/6_ui_npc.png)
+![UI NPC Dialogue](assets/report/npc_ui.png)
 
 ---
 *End of Report.*

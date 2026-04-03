@@ -1684,6 +1684,7 @@ const AIGenerator = (() => {
     _origInit.call(Controller);
     bindLocationForge();
     bindAIGenerators();
+    bindCrewAI();
   };
 
   // Track generated data for accept buttons
@@ -1849,6 +1850,132 @@ const AIGenerator = (() => {
       _lastGenLoc = AIGenerator.generateLocation(genre, type, mood);
       resultEl.innerHTML = AIGenerator.renderLocationResult(_lastGenLoc);
     }, 1200);
+  }
+  function bindCrewAI() {
+    const btnStart = document.getElementById('btn-start-encounter');
+    const btnEnd = document.getElementById('btn-end-encounter');
+    const btnSend = document.getElementById('btn-ai-send');
+    const charSelect = document.getElementById('enc-character');
+    const locSelect = document.getElementById('enc-location');
+    const inputAction = document.getElementById('ai-input');
+    
+    // Populate dropdowns when page is active
+    const populateDropdowns = () => {
+      const chars = DataStore.getCharacters();
+      const locs = DataStore.getLocations();
+      
+      if(charSelect) {
+        charSelect.innerHTML = '<option value="">Select a character...</option>' + 
+          chars.map(c => `<option value="${c.id}">${c.name} (${c.charClass})</option>`).join('');
+      }
+      if(locSelect) {
+        locSelect.innerHTML = '<option value="">Select a location...</option>' + 
+          locs.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+      }
+    };
+
+    // Override router to populate Data
+    const _oldNav = Router.navigateTo;
+    Router.navigateTo = function(pageId) {
+      _oldNav.call(Router, pageId);
+      if (pageId === 'lore-master') populateDropdowns();
+    };
+
+    btnStart?.addEventListener('click', () => {
+      const charId = charSelect.value;
+      const locId = locSelect.value;
+      const npcDesc = document.getElementById('enc-npc').value.trim();
+
+      if (!charId || !locId || !npcDesc) {
+        alert('Please select a character, location, and describe the NPC.');
+        return;
+      }
+
+      document.getElementById('encounter-setup').classList.add('hidden');
+      document.getElementById('ai-chat').classList.remove('hidden');
+      
+      const msgs = document.getElementById('ai-messages');
+      msgs.innerHTML = `
+        <div class="ai-msg ai-msg--ai">
+          <div class="ai-msg__label">Dungeon Master System</div>
+          <div>Encounter started! The Game Master and the NPC are ready. What do you do?</div>
+        </div>
+      `;
+    });
+
+    btnEnd?.addEventListener('click', () => {
+      document.getElementById('encounter-setup').classList.remove('hidden');
+      document.getElementById('ai-chat').classList.add('hidden');
+      document.getElementById('ai-input').value = '';
+    });
+
+    btnSend?.addEventListener('click', async () => {
+      const action = inputAction.value.trim();
+      if (!action) return;
+      
+      const char = DataStore.getCharacter(charSelect.value);
+      const loc = DataStore.getLocation(locSelect.value);
+      const npc_context = document.getElementById('enc-npc').value.trim();
+      
+      const player_stats = `Stats: Strength ${char.stats.strength}, Intellect ${char.stats.intellect}, Agility ${char.stats.agility}, Charisma ${char.stats.charisma}. Traits: ${char.traits.map(t => t.name).join(', ')}`;
+      const location_context = `${loc.name} (${loc.type}). Mood: ${loc.moodDescription}. Danger Level: ${loc.dangerLevel}. Features: ${loc.features.join(', ')}`;
+      
+      inputAction.value = '';
+      
+      // Add user message
+      const msgs = document.getElementById('ai-messages');
+      const usrDiv = document.createElement('div');
+      usrDiv.className = 'ai-msg ai-msg--user';
+      usrDiv.textContent = action;
+      msgs.appendChild(usrDiv);
+      msgs.scrollTop = msgs.scrollHeight;
+
+      // Add loading state
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'ai-msg ai-msg--ai';
+      loadingDiv.innerHTML = `<div class="ai-msg__label">System</div><div><span class="ai-chat__status" style="display:inline-block; margin-right:8px;"></span> CrewAI is rolling the dice...</div>`;
+      msgs.appendChild(loadingDiv);
+      msgs.scrollTop = msgs.scrollHeight;
+
+      try {
+        const response = await fetch('http://localhost:8000/api/action', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            player_stats,
+            action,
+            location_context,
+            npc_context
+          })
+        });
+
+        const data = await response.json();
+        msgs.removeChild(loadingDiv);
+        
+        if (data.status === 'success') {
+          // Add GM
+          const gmDiv = document.createElement('div');
+          gmDiv.className = 'ai-msg ai-msg--ai';
+          gmDiv.innerHTML = `<div class="ai-msg__label">Dungeon Master (CrewAI)</div><div>${Renderer.escapeHtml(data.data.gm_narration)}</div>`;
+          msgs.appendChild(gmDiv);
+          
+          // Add NPC
+          const npcDiv = document.createElement('div');
+          npcDiv.className = 'ai-msg ai-msg--ai';
+          npcDiv.innerHTML = `<div class="ai-msg__label">NPC (CrewAI)</div><div><em>${Renderer.escapeHtml(data.data.npc_reaction)}</em></div>`;
+          msgs.appendChild(npcDiv);
+        } else {
+          throw new Error(data.message || 'Error running CrewAI');
+        }
+      } catch (err) {
+        msgs.removeChild(loadingDiv);
+        const errDiv = document.createElement('div');
+        errDiv.className = 'ai-msg ai-msg--ai';
+        errDiv.innerHTML = `<div class="ai-msg__label">Error</div><div style="color:red;">Failed to connect to Local CrewAI Backend. Make sure your Python server is running on port 8000. Error: ${err.message}</div>`;
+        msgs.appendChild(errDiv);
+      }
+      msgs.scrollTop = msgs.scrollHeight;
+    });
   }
 })();
 

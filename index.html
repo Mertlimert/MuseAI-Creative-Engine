@@ -203,82 +203,78 @@
     </section>
 
     <!-- ─────────────────────────────────────────
-         PAGE: LORE-MASTER AI
+         PAGE: LORE-MASTER AI & ACTIVE ENCOUNTER
          ───────────────────────────────────────── -->
     <section class="page hidden" id="page-lore-master">
       <div class="ai-page">
         <div class="ai-hero">
-          <div class="ai-hero__icon">🤖</div>
-          <h1>Lore-Master Engine</h1>
-          <p>Your AI-powered narrative consultant. Analyze character consistency, detect plot holes, and get creative story suggestions.</p>
+          <div class="ai-hero__icon">🎲</div>
+          <h1>Active Encounter (Crew AI)</h1>
+          <p>Immerse yourself in a dynamic D&D encounter powered by CrewAI. A Game Master manages the world while NPCs react naturally to your actions.</p>
         </div>
 
-        <!-- Scenario Cards -->
-        <div class="section-header">
-          <h2>Try a Scenario</h2>
-        </div>
-        <div class="ai-scenarios" id="ai-scenarios">
-          <div class="scenario-card" data-scenario="dragon">
-            <div class="scenario-card__emoji">🐉</div>
-            <div class="scenario-card__title">Dragon Encounter</div>
-            <p class="scenario-card__desc">Ahmethan faces a dragon. How would a cowardly character react?</p>
-          </div>
-          <div class="scenario-card" data-scenario="betrayal">
-            <div class="scenario-card__emoji">🗡️</div>
-            <div class="scenario-card__title">Ally Betrayal</div>
-            <p class="scenario-card__desc">A trusted ally reveals their true colors. Check character consistency.</p>
-          </div>
-          <div class="scenario-card" data-scenario="treasure">
-            <div class="scenario-card__emoji">💎</div>
-            <div class="scenario-card__title">Hidden Treasure</div>
-            <p class="scenario-card__desc">A legendary artifact is discovered. Who would go after it?</p>
-          </div>
-        </div>
-
-        <!-- AI Chat Demo -->
-        <div class="ai-chat" id="ai-chat">
-          <div class="ai-chat__header">
-            <div class="ai-chat__status"></div>
-            <span>Lore-Master AI — Online</span>
-          </div>
-          <div class="ai-chat__messages" id="ai-messages">
-            <div class="ai-msg ai-msg--ai">
-              <div class="ai-msg__label">Lore-Master AI</div>
-              <div>Merhaba! Ben Lore-Master AI. Karakter tutarlılığı ve hikaye önerileri konusunda size yardımcı olabilirim. Bir senaryo seçin veya doğrudan bir soru sorun.</div>
+        <!-- Setup Form -->
+        <div class="encounter-setup" id="encounter-setup">
+          <h2 class="section-title">Encounter Setup</h2>
+          <div class="form-group flex gap-md">
+            <div class="w-full">
+              <label for="enc-character">Select Player Character</label>
+              <select class="form-select" id="enc-character">
+                <option value="">Loading characters...</option>
+              </select>
+            </div>
+            <div class="w-full">
+              <label for="enc-location">Select Location context</label>
+              <select class="form-select" id="enc-location">
+                <option value="">Loading locations...</option>
+              </select>
             </div>
           </div>
+          <div class="form-group">
+            <label for="enc-npc">Describe the NPC you are encountering</label>
+            <input type="text" class="form-input" id="enc-npc" placeholder="e.g. A grumpy goblin merchant selling suspicious potions" required>
+          </div>
+          <button class="btn btn--primary w-full" id="btn-start-encounter">Start Encounter</button>
+        </div>
+
+        <!-- AI Chat Interface (Crew AI Engine) -->
+        <div class="ai-chat hidden" id="ai-chat">
+          <div class="ai-chat__header justify-between">
+            <div class="flex items-center gap-sm">
+              <div class="ai-chat__status"></div>
+              <span>CrewAI Engine — Live</span>
+            </div>
+            <button class="btn btn--sm btn--outline" id="btn-end-encounter">End Encounter</button>
+          </div>
+          <div class="ai-chat__messages" id="ai-messages">
+            <!-- Messages go here -->
+          </div>
           <div class="ai-chat__input-area">
-            <input type="text" class="ai-chat__input" id="ai-input" placeholder="Ask the Lore-Master..." autocomplete="off">
-            <button class="btn btn--primary" id="btn-ai-send">Send</button>
+            <input type="text" class="ai-chat__input" id="ai-input" placeholder="What do you do? (e.g. I try to intimidate him...)" autocomplete="off">
+            <button class="btn btn--primary" id="btn-ai-send">Act</button>
           </div>
         </div>
 
         <!-- Architecture Diagram -->
-        <div class="ai-architecture">
-          <h3>⚙️ System Architecture (High-Level)</h3>
+        <div class="ai-architecture mt-2xl">
+          <h3>⚙️ CrewAI Flow Architecture</h3>
           <div class="arch-flow" id="arch-flow">
             <div class="arch-node">
-              <div class="arch-node__icon">🖥️</div>
-              <div class="arch-node__label">Frontend</div>
-              <div class="arch-node__sub">HTML / CSS / JS</div>
+              <div class="arch-node__icon">⌨️</div>
+              <div class="arch-node__label">Player Action</div>
+              <div class="arch-node__sub">Frontend JS</div>
             </div>
             <div class="arch-arrow">→</div>
             <div class="arch-node">
-              <div class="arch-node__icon">📊</div>
-              <div class="arch-node__label">Character Data</div>
-              <div class="arch-node__sub">JSON / LocalStorage</div>
+              <div class="arch-node__icon">🎲</div>
+              <div class="arch-node__label">Dungeon Master</div>
+              <div class="arch-node__sub">CrewAI Agent #1</div>
             </div>
             <div class="arch-arrow">→</div>
             <div class="arch-node">
-              <div class="arch-node__icon">🤖</div>
-              <div class="arch-node__label">AI Engine</div>
-              <div class="arch-node__sub">LLM / OpenAI API</div>
-            </div>
-            <div class="arch-arrow">→</div>
-            <div class="arch-node">
-              <div class="arch-node__icon">💡</div>
-              <div class="arch-node__label">Insights</div>
-              <div class="arch-node__sub">Analysis & Suggestions</div>
+              <div class="arch-node__icon">👤</div>
+              <div class="arch-node__label">NPC Actor</div>
+              <div class="arch-node__sub">CrewAI Agent #2</div>
             </div>
           </div>
         </div>

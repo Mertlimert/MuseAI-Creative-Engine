@@ -13,7 +13,7 @@
 | 🌍 **The World Hub** | Manage and explore your story universes with genre tags, stats, and visual cards |
 | ⚔️ **Character Forge** | Create characters with stats (Strength, Intellect, Agility, Charisma), backstory, and personality traits |
 | 📜 **Quest Ledger** | Track quests, milestones, and narrative arcs with status management |
-| 🤖 **Lore-Master AI** | AI-powered narrative consultant (demo) for character consistency analysis |
+| 🤖 **Lore-Master AI (CrewAI)** | **[NEW]** Active D&D Encounter mode where a CrewAI Game Master runs a dynamic campaign and spawns NPC Sub-Agents. |
 
 ---
 
@@ -22,27 +22,29 @@
 ### Prerequisites
 - A modern web browser (Chrome, Firefox, Edge, Safari)
 
-### Installation & Running
-
+### 1. Frontend (Universal UI)
+Open `index.html` in your browser. Or use a local server:
 ```bash
-# 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/MuseAI.git
-
-# 2. Navigate to the project folder
-cd MuseAI
-
-# 3. Open in browser
-# Simply open index.html in your browser, or use a local server:
-
-# Option A: VS Code Live Server extension
-# Option B: Python simple server
 python -m http.server 8000
-
-# Option C: Node.js
-npx serve .
 ```
+Then visit `http://localhost:8000`.
 
-Then visit `http://localhost:8000` in your browser.
+### 2. Backend (CrewAI Engine)
+Required for the "Lore-Master AI" Active Encounter tab.
+```bash
+# Navigate to backend
+cd backend
+
+# Setup environment
+# Create .env based on .env.example and add your OPENROUTER_API_KEY
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run API server
+py api.py
+```
+The backend runs on `http://localhost:8000`. Ensure you use a different port for the frontend if using a local server!
 
 ---
 

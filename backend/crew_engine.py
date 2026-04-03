@@ -1,11 +1,22 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from crewai import Agent, Crew, Process, Task
+from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# --- LLM Configuration for OpenRouter ---
+my_llm = LLM(
+    model=os.getenv("OPENAI_MODEL_NAME", "openrouter/google/gemini-2.0-flash-lite:free"),
+    base_url=os.getenv("OPENAI_API_BASE", "https://openrouter.ai/api/v1"),
+    api_key=os.getenv("OPENAI_API_KEY"),
+    extra_headers={
+        "HTTP-Referer": "https://github.com/Mertlimert/MuseAI-Creative-Engine",
+        "X-Title": "MuseAI Creative Engine"
+    }
+)
 
 # --- Pydantic Models for Structured Output ---
 class NPCRequest(BaseModel):
@@ -29,6 +40,7 @@ class DnDGameMasterCrew():
     def game_master(self) -> Agent:
         return Agent(
             config=self.agents_config['game_master'],
+            llm=my_llm,
             verbose=True
         )
 
@@ -56,6 +68,7 @@ def run_npc_subagent(npc: NPCRequest, gm_narration: str, player_action: str, spe
         role=f"{npc.name}",
         goal=f"React and speak strictly as {npc.name}.",
         backstory=f"You are {npc.name}. {npc.persona}\n\nPast interactions with the player:\n{specific_npc_history}",
+        llm=my_llm,
         verbose=True
     )
     

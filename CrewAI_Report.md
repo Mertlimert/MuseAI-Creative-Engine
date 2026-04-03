@@ -1,134 +1,85 @@
-# Crew AI Implementation Report - MuseAI D&D Engine
+# CrewAI Implementation Report: MuseAI Dynamic Campaign Engine
 
-## Project Context
-This Crew AI project is fully integrated into **Homework 2 (MuseAI - Creative Engine)**, adding the core D&D Encounter functionality. Instead of separate CLI scripts, the AI engine directly powers the **"Active Encounter"** feature inside the MuseAI web application. 
+**Project:** MuseAI – Creative Engine (D&D Edition)  
+**Git URL:** https://github.com/Mertlimert/MuseAI-Creative-Engine.git  
+**Author:** Mert Kedik
 
-The application uses a **FastAPI Python backend** to manage the Crew, which receives character (player_stats), location (location_context), and NPC persona via a REST API from the pure JavaScript frontend.
+---
 
-## 1. Agents Configuration (`config/agents.yaml`)
+## 1. Project Overview & Homework 2 Integration
+Bu proje, **Homework 2 (Creative Engine)** üzerine inşa edilen, statik dünya inşasını dinamik bir oyun motoruna dönüştüren bir CrewAI uygulamasıdır. 
 
+### Entegrasyon Detayları:
+- **Homework 2 Foundation:** Daha önce oluşturulan "Character Forge" ve "Location Forge" verileri (karakter istatistikleri, yetenekler, mekanın ruh hali), CrewAI ajanlarına **dinamik context** olarak enjekte edilir.
+- **Dinamik Veri Akışı:** Kullanıcı arayüzünde seçilen karakterin gücü (Strength) veya zekası (Intellect), CrewAI'nın Game Master ajanı tarafından zar atma (resolution logic) mekaniğinde kullanılır.
+
+---
+
+## 2. Technical Architecture: The Two-Pass System
+Projede, performans ve rol yapma tutarlılığını artırmak için iki aşamalı (Two-Pass) bir CrewAI mimarisi kullanılmıştır.
+
+1.  **Pass 1 (Game Master):** DM, dünyayı anlatır ve aksiyonları çözer. Eğer sahnede biri konuşmalıysa, bir NPC Sub-Agent tetiklenmesini "Pydantic" yapısıyla komuta eder.
+2.  **Pass 2 (NPC Sub-Agents):** Sistem, DM'in direktifiyle anında bağımsız bir CrewAI ajanı oluşturur. Bu ajan, DM'den gelen "persona" ve oyuncuyla olan özel "npc_history" (hafıza) bilgisiyle konuşur.
+
+---
+
+## 3. Configuration Files (YAML)
+
+### Agents Configuration (`agents.yaml`)
 ```yaml
 game_master:
   role: "Dungeon Master"
-  goal: "Orchestrate the D&D encounter, evaluate the player's action ({action}) based on their character stats ({player_stats}) and the location details ({location_context}), and set up the narrative outcome for the NPC."
+  goal: "Drive the campaign narrative forward. Process the player's action according to their stats and the history. Narrate the outcome vividly. Decide if any NPCs are present and need to speak."
   backstory: >
-    You are an impartial, highly creative, and dramatic Game Master. You know the rules of the world perfectly. 
-    You look at the player's stats: Strength, Intellect, Agility, and Charisma.
-    When a player takes an action, you calculate the likely success and narrate the immediate environmental and physical results.
-    You do NOT speak for the NPC; you only set the stage so the NPC can react.
-    You must always provide a brief, engaging narration of what happens to the player.
-
-npc_actor:
-  role: "NPC Actor in the Game World"
-  goal: "Respond directly to the player's action ({action}) in character, taking into account the Game Master's narration."
-  backstory: >
-    You are an NPC. Your current persona is: {npc_context}.
-    You are currently located in: {location_context}.
-    You just witnessed the player's action and the events narrated by the Game Master.
-    You must react exactly as this NPC would. Speak in character!
-    Do not break the fourth wall. Do not act as an AI. 
-    Show emotion based on whether the player succeeded or failed in their action.
+    You are an impartial, highly creative, and dramatic Game Master orchestrating a D&D campaign.
+    You know the rules of the world perfectly.
+    You must always narrate the world around the player.
+    You NEVER speak for the NPCs. Instead, you spawn them by defining their persona and the instructions for how they should react, and let them speak for themselves.
 ```
 
-## 2. Tasks Configuration (`config/tasks.yaml`)
-
+### Tasks Configuration (`tasks.yaml`)
 ```yaml
 resolve_action:
   description: >
-    Evaluate the player's action.
-    Player stats: {player_stats}
-    Player action: "{action}"
-    Location: {location_context}
-    
-    1. Read the player's action carefully.
-    2. Determine if it succeeds based on their stats.
-    3. Write a vivid narration of the outcome.
+    Evaluate the player's latest action and advance the campaign.
+    Current Player Stats: {player_stats}
+    Location Concept: {location_context}
+    Overall Story Premise: {story_premise}
+    Player's New Action: "{action}"
   expected_output: >
-    A dramatic narration (1-2 paragraphs) from the Game Master detailing the immediate result of the player's action.
+    A JSON object matching the GMResponse schema, containing the narration and an optional list of NPCs to speak.
   agent: game_master
-
-roleplay_reaction:
-  description: >
-    React to the Game Master's narration and the player's action.
-    NPC Persona: {npc_context}
-    
-    1. Read the GM's narration.
-    2. Produce your in-character dialogue or action as the NPC.
-  expected_output: >
-    The exact words spoken by the NPC and their physical reaction, presented in character (1 paragraph).
-  agent: npc_actor
 ```
 
-## 3. Kickoff Code Snippet (`crew_engine.py`)
+---
 
-Using the class-based CrewAI structure, we initialize and kick off the tasks sequentially. The results from both tasks are parsed and sent back to the frontend to render the chat.
+## 4. Implementation Logic (Python Snippets)
+
+### Kickoff & Output Handling
+Aşağıdaki kod parçası, DM'in çıktılarını Pydantic formatında alıp, sistemin dinamik olarak NPC ajanları üretmesini sağlar.
 
 ```python
-from crewai import Agent, Crew, Process, Task
-from crewai.project import CrewBase, agent, crew, task
+# Pass 1: The Game Master decides what happens
+gm_crew = DnDGameMasterCrew().crew()
+gm_result = gm_crew.kickoff(inputs=inputs)
 
-@CrewBase
-class DnDEncounterCrew():
-    """DnD Encounter Crew for resolving actions and roleplaying"""
-
-    agents_config = 'config/agents.yaml'
-    tasks_config = 'config/tasks.yaml'
-
-    @agent
-    def game_master(self) -> Agent:
-        return Agent(config=self.agents_config['game_master'], verbose=True)
-
-    @agent
-    def npc_actor(self) -> Agent:
-        return Agent(config=self.agents_config['npc_actor'], verbose=True)
-
-    @task
-    def resolve_action(self) -> Task:
-        return Task(config=self.tasks_config['resolve_action'])
-
-    @task
-    def roleplay_reaction(self) -> Task:
-        return Task(config=self.tasks_config['roleplay_reaction'])
-
-    @crew
-    def crew(self) -> Crew:
-        return Crew(
-            agents=self.agents,
-            tasks=self.tasks,
-            process=Process.sequential,
-            verbose=True
-        )
-
-def run_encounter(player_stats, action, location_context, npc_context):
-    inputs = {
-        'player_stats': player_stats,
-        'action': action,
-        'location_context': location_context,
-        'npc_context': npc_context
-    }
-    dnd_crew = DnDEncounterCrew().crew()
-    result = dnd_crew.kickoff(inputs=inputs)
-    
-    # Returning parsed values...
+# Pass 2: Dynamically spawn NPC Agents if requested
+for npc_req in structured_gm.npcs_to_activate:
+    npc_reply = run_npc_subagent(
+        npc=npc_req, 
+        gm_narration=structured_gm.narration,
+        player_action=action,
+        specific_npc_history=specific_history
+    )
 ```
 
-## 4. Environment (.env / cfg) & LLM Details
-The system connects to OpenRouter via Langchain mapped through `OPENAI_API_BASE`.
+---
 
-```text
-OPENAI_API_BASE=https://openrouter.ai/api/v1
-OPENAI_API_KEY=your_openrouter_api_key_here
-OPENAI_MODEL_NAME=openai/gpt-4o-mini
-```
+## 5. Visual Summary & Screenshots
+Proje arayüzü, CrewAI'yı bir oyun motoru olarak kullanır. 
 
-## 5. Screen Implementation Flow (Explanation)
-Instead of static images, here is the UI functionality in the built application:
-1. **Setup Screen:** The user navigates to the "Lore-Master AI" module. They pick a pre-generated specific character and location from dropdowns. They input an NPC persona (e.g. `A grumpy goblin merchant selling suspicious potions`).
-2. **Chat Interface:** Click "Start Encounter". It switches to a live chat UI.
-3. **Player Action:** The user types an action: `"I try to intimidate the goblin with my high strength."`
-4. **CrewAI Magic:** The Python FastAPI backend receives this via an HTTP Request. The `Game Master` agent calculates the success based on stats, rules, and location context. Then, the `NPC Actor` agent takes this context and generates direct dialogue.
-5. **UI Rendering:** Both agents' responses populate the chat interface.
+-   **Frontend:** `app_v2.js` üzerinden `http://localhost:8000/api/action` endpoint'ine veri gönderir.
+-   **Backend:** `FastAPI` + `CrewAI` kombinasyonu ile LLM (Gemini/GPT) üzerinden yanıtları üretir.
 
-## Git URL
-The project has been pushed to the main branch of:
-`https://github.com/Mertlimert/MuseAI-Creative-Engine.git`
+*(Buraya Active Encounter ekran görüntüsü gelecektir)*
+

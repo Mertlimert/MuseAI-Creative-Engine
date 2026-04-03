@@ -731,66 +731,7 @@ const Router = (() => {
 })();
 
 
-/* ============================================================
-   5. AI ENGINE — Simulated AI Interaction
-   ============================================================ */
-const AIEngine = (() => {
-  const SCENARIOS = {
-    dragon: {
-      userMessage: 'Karakter Ahmethan, ejderhanın karşısına çıkıyor. Ne yapmalı?',
-      aiResponse: `<div class="ai-msg__label">Lore-Master AI — Consistency Analysis</div>
-        <p><strong>Karakter Analizi:</strong> Ahmethan'ın "Korkak" özelliği tespit edildi.</p>
-        <br>
-        <p><strong>🟢 Seçenek 1 — Kaçmak (Tutarlı):</strong> Ahmethan, ejderhayı gördüğü an paniğe kapılır ve en yakın sığınağa doğru koşar. Bu, korkak karakteriyle uyumludur.</p>
-        <br>
-        <p><strong>🟢 Seçenek 2 — Saklanmak (Tutarlı):</strong> Ahmethan sessizce bir kayanın arkasına gizlenir ve ejderhanın geçmesini bekler.</p>
-        <br>
-        <p><strong>🔴 Seçenek 3 — Saldırmak (TUTARSIZ!):</strong> ⚠️ <em>Uyarı: Ahmethan korkak bir karakter. Doğrudan saldırı, karakter profiline aykırıdır. Eğer saldırmasını istiyorsanız, bir motivasyon eklemeyi düşünün (örn: sevdiği biri tehlikede).</em></p>`,
-    },
-    betrayal: {
-      userMessage: "Güvenilir müttefik Aelwen'in ihanet ettiği ortaya çıkıyor. Karakter tutarlılığını kontrol et.",
-      aiResponse: `<div class="ai-msg__label">Lore-Master AI — Plot Analysis</div>
-        <p><strong>İhanet Analizi:</strong> Aelwen'in backstory'si ve karakter özellikleri incelendi.</p>
-        <br>
-        <p><strong>✅ Tutarlılık Raporu:</strong> Aelwen'in "Cunning" (Kurnaz) özelliği, uzun vadeli bir ihanet planı ile uyumludur. Ancak, eğer "Loyal" (Sadık) özelliği varsa, ihanetin bir zorlanma veya tehdit sonucu olduğu açıklanmalıdır.</p>
-        <br>
-        <p><strong>💡 Öneri:</strong> İhanetin arkasında kişisel bir motivasyon ekleyin — örneğin ailesini korumak veya eski bir borç.</p>`,
-    },
-    treasure: {
-      userMessage: 'Efsanevi bir hazine keşfedildi. Hangi karakter peşine düşer?',
-      aiResponse: `<div class="ai-msg__label">Lore-Master AI — Character Matching</div>
-        <p><strong>Hazine Analizi:</strong> Mevcut karakterler incelendi.</p>
-        <br>
-        <p><strong>🏆 En Uygun:</strong> Xyla the Rogue — "Cunning" özelliği ve Shadow Dancer sınıfı, hazine avı için ideal bir adaydır. Yüksek Agility (94) ile tuzaklardan kolayca kurtulabilir.</p>
-        <br>
-        <p><strong>⚔️ Olası Çatışma:</strong> Grog the Brutal da hazineyi isteyebilir — güç ile elde etmeye çalışır. Bu iki karakter arasında rekabet yaratabilirsiniz.</p>
-        <br>
-        <p><strong>🚫 Uyumsuz:</strong> Aethelgard the Wise — Bilge karakterler genellikle maddi zenginlik peşinde koşmaz. Ancak eğer hazine büyülü bir artifact ise, ilgisini çekebilir.</p>`,
-    },
-  };
 
-  /** General responses for free-form chat */
-  const GENERAL_RESPONSES = [
-    `Harika bir soru! Karakter tutarlılığı açısından bakarsak, bu sahne için karakterin geçmiş deneyimlerini ve kişilik özelliklerini göz önünde bulundurmanızı öneririm. Eğer belirli bir karakter hakkında analiz isterseniz, ismini yazabilirsiniz.`,
-    `Lore-Master olarak size şunu önerebilirim: Her kritik karar noktasında, karakterin en az 2 tutarlı ve 1 sürpriz seçeneğe sahip olmasını planlayın. Sürpriz seçenek, karakter gelişimi için harika bir fırsat olabilir!`,
-    `İlginç bir yaklaşım! Hikaye yapınızda "3 Perde" kuralını uygulayabilirsiniz: 1) Tanıtım ve çatışma kurulumu, 2) Tırmanma ve komplikasyonlar, 3) Doruk nokta ve çözüm. Bu yapı, okuyucunun ilgisini sürekli canlı tutar.`,
-    `Karakter ilişkilerini derinleştirmek istiyorsanız, her karaktere en az bir "gizli bağlantı" ekleyin. Bu, hikayenin ilerleyen bölümlerinde sürpriz dönüm noktaları yaratmanıza yardımcı olur.`,
-  ];
-
-  let responseIndex = 0;
-
-  function getScenarioResponse(scenarioKey) {
-    return SCENARIOS[scenarioKey] || null;
-  }
-
-  function getGeneralResponse() {
-    const response = GENERAL_RESPONSES[responseIndex % GENERAL_RESPONSES.length];
-    responseIndex++;
-    return response;
-  }
-
-  return { getScenarioResponse, getGeneralResponse };
-})();
 
 
 /* ============================================================
@@ -807,7 +748,6 @@ const Controller = (() => {
     bindWorldHub();
     bindCharacterForge();
     bindQuestLedger();
-    bindLoreMaster();
     bindMobileToggle();
     renderWorldHub();
   }
@@ -1204,64 +1144,7 @@ const Controller = (() => {
     renderQuestLedger();
   }
 
-  /* ─────────────────────────────────────────
-     LORE-MASTER AI
-     ───────────────────────────────────────── */
-  function bindLoreMaster() {
-    // Scenario cards
-    document.querySelectorAll('.scenario-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const scenario = card.getAttribute('data-scenario');
-        handleScenario(scenario);
-      });
-    });
 
-    // Chat input
-    document.getElementById('btn-ai-send')?.addEventListener('click', handleAIChatSend);
-    document.getElementById('ai-input')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') handleAIChatSend();
-    });
-  }
-
-  function handleScenario(scenarioKey) {
-    const scenario = AIEngine.getScenarioResponse(scenarioKey);
-    if (!scenario) return;
-
-    const messagesEl = document.getElementById('ai-messages');
-    appendChatMessage(messagesEl, 'user', scenario.userMessage);
-
-    // Simulate typing delay
-    setTimeout(() => {
-      appendChatMessage(messagesEl, 'ai', scenario.aiResponse, true);
-    }, 800);
-  }
-
-  function handleAIChatSend() {
-    const input = document.getElementById('ai-input');
-    const text = input.value.trim();
-    if (!text) return;
-
-    const messagesEl = document.getElementById('ai-messages');
-    appendChatMessage(messagesEl, 'user', Renderer.escapeHtml(text));
-    input.value = '';
-
-    setTimeout(() => {
-      const response = AIEngine.getGeneralResponse();
-      appendChatMessage(messagesEl, 'ai', response);
-    }, 1000);
-  }
-
-  function appendChatMessage(container, type, content, isHtml = false) {
-    const div = document.createElement('div');
-    div.className = `ai-msg ai-msg--${type}`;
-    if (type === 'ai') {
-      div.innerHTML = `<div class="ai-msg__label">Lore-Master AI</div><div>${isHtml ? content : Renderer.escapeHtml(content)}</div>`;
-    } else {
-      div.textContent = content;
-    }
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-  }
 
   /* ─────────────────────────────────────────
      TOAST NOTIFICATION (Lightweight)
@@ -1917,7 +1800,12 @@ const AIGenerator = (() => {
       document.getElementById('ai-input').value = '';
     });
 
-    btnSend?.addEventListener('click', async () => {
+    btnSend?.addEventListener('click', () => handleActionSubmit());
+    inputAction?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleActionSubmit();
+    });
+
+    async function handleActionSubmit() {
       const action = inputAction.value.trim();
       if (!action) return;
       
@@ -2000,7 +1888,7 @@ const AIGenerator = (() => {
         msgs.appendChild(errDiv);
       }
       msgs.scrollTop = msgs.scrollHeight;
-    });
+    }
   }
 })();
 

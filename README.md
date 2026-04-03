@@ -62,17 +62,26 @@ The backend runs on `http://localhost:8000`. Ensure you use a different port for
 
 ## 🏗️ Architecture
 
-The application follows a **modular architecture** with clear separation of concerns:
+---
 
-```
+## 🏗️ Architecture
+
+The application follows a **modular architecture** with clear separation of concerns, connecting a robust Vanilla JS frontend to a Python-based CrewAI microservice backend.
+
+### Frontend Domain (Vanilla JS)
+```text
 app.js
 ├── DataStore      → Single source of truth, CRUD operations, localStorage persistence
 ├── Renderer       → Pure rendering functions (data → HTML), no side effects
 ├── Controller     → Event handling, orchestration, business logic
 ├── Router         → SPA page navigation
-├── AIEngine       → Simulated AI interaction logic
 └── ModalManager   → Centralized modal open/close/reset
 ```
+
+### Backend Domain (CrewAI Two-Pass Engine)
+The Lore-Master AI replaces our mock responses with a fully dynamic D&D Engine using a two-pass architecture:
+1. **Pass 1 (Game Master Routing):** A CrewAI Game Master evaluates the player's action, checks stats (strength, intellect, etc.) from Homework 2 databases, and generates a structured Pydantic layout of the story.
+2. **Pass 2 (Dynamic NPC Sub-Agents):** If the GM determines an NPC should react, a dynamically instantiated CrewAI agent is spawned on-the-fly, given a strict persona, and converses distinctly from the global narrator.
 
 ---
 

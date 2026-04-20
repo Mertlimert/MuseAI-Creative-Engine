@@ -344,6 +344,746 @@ const DataStore = (() => {
 /* ============================================================
    2. RENDERER — Pure Rendering Functions
    ============================================================ */
+const Language = (() => {
+  const STORAGE_KEY = 'museai_language';
+  const dictionaries = {
+    en: {
+      app_title: 'MuseAI - Creative Engine',
+      meta_description: 'MuseAI - A creative writing dashboard for building story universes, characters, and quests with AI-powered narrative assistance.',
+      toggle_menu: 'Toggle menu',
+      language_label: 'Language',
+      language_selector: 'Language selector',
+      language_en: 'English',
+      language_tr: 'Turkce',
+      brand_subtitle: 'Creative Engine',
+      user_role: 'Story Architect',
+      nav_world_hub: 'World Hub',
+      nav_character_forge: 'Character Forge',
+      nav_quest_ledger: 'Quest Ledger',
+      nav_location_forge: 'Location Forge',
+      nav_lore_master: 'Lore-Master AI',
+      page_world_title: 'The World Hub',
+      page_world_subtitle: 'Manage and explore your story universes',
+      settings: 'Settings',
+      quick_import: 'Quick Import',
+      stats_total_universes: 'Total Universes',
+      stats_active_characters: 'Active Characters',
+      stats_quests_completed: 'Quests Completed',
+      my_universes: 'My Universes',
+      view_all: 'View all ->',
+      lore_tip_title: 'Lore-Master Tip',
+      discuss_with_ai: 'Discuss with AI',
+      page_character_title: 'Character Forge',
+      page_character_subtitle: "Craft and manage your story's characters",
+      ai_generate: 'AI Generate',
+      new_character: 'New Character',
+      library: 'Library',
+      select_character: 'Select a Character',
+      choose_character_from_library: 'Choose a character from the library to edit their details',
+      no_characters_yet: 'No characters yet',
+      character_backstory_origins: 'Backstory & Origins',
+      personality_traits: 'Personality Traits',
+      add_trait: 'Add Trait',
+      delete_character: 'Delete Character',
+      save_changes: 'Save Changes',
+      level_short: 'Level {level}',
+      core_stats: 'Core Stats',
+      ai_insights: 'AI Insights',
+      apply_suggestion: 'Apply Suggestion',
+      stat_strength: 'Strength',
+      stat_intellect: 'Intellect',
+      stat_agility: 'Agility',
+      stat_charisma: 'Charisma',
+      page_quest_title: 'Quest Ledger',
+      page_quest_subtitle: 'Track quests, milestones, and narrative arcs',
+      new_quest: 'New Quest',
+      select_quest: 'Select a Quest',
+      choose_quest_from_list: 'Choose a quest from the list to see its details and milestones',
+      no_quests_yet: 'No Quests Yet',
+      create_first_quest: 'Create your first quest to start building your narrative',
+      progress: 'Progress',
+      milestones: 'Milestones',
+      edit: 'Edit',
+      delete: 'Delete',
+      page_location_title: 'Location Forge',
+      page_location_subtitle: 'Create and manage the places in your story world',
+      new_location: 'New Location',
+      add_location_to_world: 'Add a new place to your world',
+      danger_level_short: 'Danger: {value}/10',
+      encounter_title: 'Active Encounter (CrewAI + LangGraph)',
+      encounter_subtitle: 'Run the same live D&D encounter with either CrewAI multi-agent orchestration or a LangGraph workflow, while keeping both systems active in the same project.',
+      encounter_setup: 'Encounter Setup',
+      encounter_select_character: 'Select Player Character',
+      loading_characters: 'Loading characters...',
+      encounter_select_location: 'Select Location context',
+      loading_locations: 'Loading locations...',
+      story_premise: 'Story Premise (What is the campaign about?)',
+      story_premise_placeholder: 'e.g. I am entering a dark tavern looking for a quest.',
+      ai_engine_label: 'AI Orchestration Engine',
+      start_campaign: 'Start Campaign',
+      end_encounter: 'End Encounter',
+      ai_input_placeholder: 'What do you do? (e.g. I try to intimidate him...)',
+      act: 'Act',
+      architecture_player_action: 'Player Action',
+      architecture_frontend: 'Frontend JS',
+      create_universe: 'Create Universe',
+      edit_universe: 'Edit Universe',
+      universe_name: 'Universe Name',
+      universe_name_placeholder: 'e.g. Cyberpunk Istanbul',
+      genre: 'Genre',
+      genre_cyberpunk: 'Cyberpunk',
+      genre_fantasy: 'High Fantasy',
+      genre_scifi: 'Sci-Fi',
+      genre_horror: 'Horror',
+      genre_steampunk: 'Steampunk',
+      description: 'Description',
+      universe_desc_placeholder: 'Describe your universe...',
+      cancel: 'Cancel',
+      create: 'Create',
+      create_character: 'Create Character',
+      edit_character: 'Edit Character',
+      character_name: 'Character Name',
+      character_name_placeholder: 'e.g. Aethelgard the Wise',
+      class_role: 'Class / Role',
+      class_role_placeholder: 'e.g. Archmage, Warrior, Rogue',
+      type: 'Type',
+      role_protagonist: 'Protagonist',
+      role_antagonist: 'Antagonist',
+      role_npc: 'NPC',
+      role_side_character: 'Side Character',
+      backstory: 'Backstory',
+      backstory_placeholder: "Write the character's origin story...",
+      create_quest: 'Create Quest',
+      edit_quest: 'Edit Quest',
+      quest_title: 'Quest Title',
+      quest_title_placeholder: 'e.g. The Great Siege',
+      quest_type: 'Quest Type',
+      status_label: 'Status',
+      quest_type_main: 'Main Questline',
+      quest_type_side: 'Side Quest',
+      quest_type_character: 'Character Arc',
+      quest_status_active: 'Active',
+      quest_status_completed: 'Completed',
+      quest_status_locked: 'Locked',
+      quest_desc_placeholder: 'Describe the quest objectives...',
+      add_trait_title: 'Add Trait',
+      trait_name: 'Trait Name',
+      trait_name_placeholder: 'e.g. Brave, Cunning, Wise',
+      trait_style: 'Trait Style',
+      trait_default: 'Default',
+      trait_aggressive: 'Aggressive',
+      trait_wise: 'Wise',
+      trait_cowardly: 'Cowardly',
+      trait_cunning: 'Cunning',
+      trait_brave: 'Brave',
+      ai_char_generator: 'AI Character Generator',
+      ai_char_description: 'Configure the parameters below and let the AI craft a unique character for your story.',
+      world_genre: 'World Genre',
+      character_role: 'Character Role',
+      personality_theme: 'Personality Theme',
+      theme_balanced: 'Balanced',
+      theme_dark: 'Dark & Mysterious',
+      theme_noble: 'Noble & Heroic',
+      theme_trickster: 'Trickster & Cunning',
+      theme_tragic: 'Tragic Hero',
+      generate_character: 'Generate Character',
+      regenerate: 'Regenerate',
+      add_to_library: 'Add to Library',
+      ai_location_generator: 'AI Location Generator',
+      ai_location_description: 'Describe the type of location you need and let the AI build it for your world.',
+      location_type: 'Location Type',
+      atmosphere: 'Atmosphere',
+      location_type_city: 'City / Town',
+      location_type_dungeon: 'Dungeon / Cave',
+      location_type_wilderness: 'Wilderness / Forest',
+      location_type_building: 'Building / Interior',
+      location_type_landmark: 'Landmark / Monument',
+      mood_mysterious: 'Mysterious',
+      mood_dangerous: 'Dangerous',
+      mood_peaceful: 'Peaceful',
+      mood_eerie: 'Eerie & Haunted',
+      mood_bustling: 'Bustling & Lively',
+      generate_location: 'Generate Location',
+      add_to_world: 'Add to World',
+      create_location: 'Create Location',
+      location_name: 'Location Name',
+      location_name_placeholder: 'e.g. The Whispering Caves',
+      location_desc_placeholder: 'Describe this location...',
+      last_edited: 'Last edited {time}',
+      just_now: 'Just now',
+      new_universe_title: 'New Universe',
+      new_universe_desc: 'Start a new story thread and build your world from scratch.',
+      universe_characters: 'Characters',
+      universe_quests: 'Quests',
+      generated_name: 'Generated Name',
+      class_race: 'Class & Race',
+      generated_backstory: 'Generated Backstory',
+      generated_location: 'Generated Location',
+      type_atmosphere: 'Type & Atmosphere',
+      key_features: 'Key Features',
+      generated_description: 'Description',
+      backstory_saved: 'Backstory saved!',
+      ai_suggestion_applied: 'AI suggestion applied! (simulated)',
+      confirm_delete_universe: 'Are you sure you want to delete this universe?',
+      confirm_delete_character: 'Are you sure you want to delete this character?',
+      confirm_delete_quest: 'Are you sure you want to delete this quest?',
+      confirm_delete_location: 'Delete this location?',
+      generating_character: 'Generating character...',
+      generating_location: 'Generating location...',
+      select_character_option: 'Select a character...',
+      select_location_option: 'Select a location...',
+      encounter_validation: 'Please select a character, location, and set a story premise.',
+      system_label: 'System',
+      error_label: 'Error',
+      api_failure: 'API Failure. Error: {message}',
+      crewai_status: 'CrewAI Engine - Live',
+      crewai_start_message: 'Campaign started with CrewAI multi-agent orchestration. What do you do first?',
+      crewai_loading: 'CrewAI is rolling the dice...',
+      crewai_gm_label: 'Dungeon Master (CrewAI)',
+      crewai_npc_label: 'Sub-Agent',
+      crewai_workflow_label: 'CrewAI Steps',
+      crewai_hint: 'CrewAI uses a Game Master agent and dynamic NPC sub-agents.',
+      crewai_arch_title: 'CrewAI Flow Architecture',
+      crewai_arch_description: 'CrewAI routes the encounter through a Game Master agent, then dynamically spawns NPC sub-agents only when a character should react.',
+      crewai_node_2_label: 'Dungeon Master',
+      crewai_node_2_sub: 'CrewAI Agent #1',
+      crewai_node_3_label: 'NPC Actor',
+      crewai_node_3_sub: 'Dynamic Sub-Agent',
+      crewai_node_4_label: 'Final Encounter',
+      crewai_node_4_sub: 'Narration + NPC replies',
+      langgraph_status: 'LangGraph Workflow - Live',
+      langgraph_start_message: 'Campaign started with LangGraph workflow orchestration. What do you do first?',
+      langgraph_loading: 'LangGraph is traversing the encounter nodes...',
+      langgraph_gm_label: 'Dungeon Master (LangGraph)',
+      langgraph_npc_label: 'Graph Node',
+      langgraph_workflow_label: 'LangGraph Steps',
+      langgraph_hint: 'LangGraph uses stateful nodes, conditional edges, and a shared encounter state.',
+      langgraph_arch_title: 'LangGraph Flow Architecture',
+      langgraph_arch_description: 'LangGraph prepares shared state, runs a Game Master node, conditionally branches into NPC dialogue nodes, and then assembles the final response.',
+      langgraph_node_2_label: 'Context Node',
+      langgraph_node_2_sub: 'Shared encounter state',
+      langgraph_node_3_label: 'GM Router',
+      langgraph_node_3_sub: 'Structured narration node',
+      langgraph_node_4_label: 'NPC Branch',
+      langgraph_node_4_sub: 'Conditional node + final assembly',
+      engine_crewai: 'CrewAI Multi-Agent',
+      engine_langgraph: 'LangGraph Workflow',
+      insight_cowardly_intellect: "{name}'s high intellect suggests they would likely use illusion magic to cover any cowardly retreat. Consider adding 'Deceptive' to their trait list to align with their secret backstory.",
+      insight_aggressive_low_strength: '{name} has aggressive tendencies but low strength. This could create interesting internal conflict - perhaps their aggression is verbal, not physical.',
+      insight_brave_aggressive: "{name}'s bravery combined with aggression makes them a natural frontline leader. Consider giving them a squad to command in battle scenarios.",
+      insight_default: "{name}'s unique combination of traits creates narrative opportunities. Consider how their {charClass} abilities interact with their personality in critical moments."
+    },
+    tr: {
+      app_title: 'MuseAI - Yaratici Motor',
+      meta_description: 'MuseAI - hikaye evrenleri, karakterler ve gorevler olusturmak icin yapay zeka destekli yaratici yazim paneli.',
+      toggle_menu: 'Menuyu ac veya kapat',
+      language_label: 'Dil',
+      language_selector: 'Dil secici',
+      language_en: 'English',
+      language_tr: 'Turkce',
+      brand_subtitle: 'Yaratici Motor',
+      user_role: 'Hikaye Mimari',
+      nav_world_hub: 'Dunya Merkezi',
+      nav_character_forge: 'Karakter Atolyesi',
+      nav_quest_ledger: 'Gorev Defteri',
+      nav_location_forge: 'Mekan Atolyesi',
+      nav_lore_master: 'Lore-Master AI',
+      page_world_title: 'Dunya Merkezi',
+      page_world_subtitle: 'Hikaye evrenlerini yonet ve kesfet',
+      settings: 'Ayarlar',
+      quick_import: 'Hizli Ice Aktar',
+      stats_total_universes: 'Toplam Evren',
+      stats_active_characters: 'Aktif Karakter',
+      stats_quests_completed: 'Tamamlanan Gorev',
+      my_universes: 'Evrenlerim',
+      view_all: 'Tumunu Gor ->',
+      lore_tip_title: 'Lore-Master Ipucu',
+      discuss_with_ai: 'AI ile Konus',
+      page_character_title: 'Karakter Atolyesi',
+      page_character_subtitle: 'Hikayendeki karakterleri tasarla ve yonet',
+      ai_generate: 'AI Uret',
+      new_character: 'Yeni Karakter',
+      library: 'Kutuphane',
+      select_character: 'Bir Karakter Sec',
+      choose_character_from_library: 'Detaylarini duzenlemek icin kutuphaneden bir karakter sec',
+      no_characters_yet: 'Henuz karakter yok',
+      character_backstory_origins: 'Gecmis Hikaye ve Kokler',
+      personality_traits: 'Kisilik Ozellikleri',
+      add_trait: 'Ozellik Ekle',
+      delete_character: 'Karakteri Sil',
+      save_changes: 'Degisiklikleri Kaydet',
+      level_short: 'Seviye {level}',
+      core_stats: 'Temel Istatistikler',
+      ai_insights: 'AI Icgoruleri',
+      apply_suggestion: 'Oneriyi Uygula',
+      stat_strength: 'Guc',
+      stat_intellect: 'Zeka',
+      stat_agility: 'Ceviklik',
+      stat_charisma: 'Karizma',
+      page_quest_title: 'Gorev Defteri',
+      page_quest_subtitle: 'Gorevleri, kilometre taslarini ve anlati akislarini takip et',
+      new_quest: 'Yeni Gorev',
+      select_quest: 'Bir Gorev Sec',
+      choose_quest_from_list: 'Detaylari ve kilometre taslarini gormek icin listeden bir gorev sec',
+      no_quests_yet: 'Henuz gorev yok',
+      create_first_quest: 'Anlatini kurmaya baslamak icin ilk gorevini olustur',
+      progress: 'Ilerleme',
+      milestones: 'Kilometre Taslari',
+      edit: 'Duzenle',
+      delete: 'Sil',
+      page_location_title: 'Mekan Atolyesi',
+      page_location_subtitle: 'Hikaye dunyandaki mekanlari olustur ve yonet',
+      new_location: 'Yeni Mekan',
+      add_location_to_world: 'Dunyana yeni bir yer ekle',
+      danger_level_short: 'Tehlike: {value}/10',
+      encounter_title: 'Aktif Karsilasma (CrewAI + LangGraph)',
+      encounter_subtitle: 'Ayni canli D&D karsilasmasini CrewAI coklu ajan orkestrasyonu veya LangGraph is akisi ile calistir, hem de ikisini de ayni projede aktif tut.',
+      encounter_setup: 'Karsilasma Kurulumu',
+      encounter_select_character: 'Oyuncu Karakterini Sec',
+      loading_characters: 'Karakterler yukleniyor...',
+      encounter_select_location: 'Mekan Baglamini Sec',
+      loading_locations: 'Mekanlar yukleniyor...',
+      story_premise: 'Hikaye Onermesi (Kampanya ne hakkinda?)',
+      story_premise_placeholder: 'ornegin Bir gorev ararken karanlik bir hana giriyorum.',
+      ai_engine_label: 'AI Orkestrasyon Motoru',
+      start_campaign: 'Kampanyayi Baslat',
+      end_encounter: 'Karsilasmayi Bitir',
+      ai_input_placeholder: 'Ne yapiyorsun? (ornegin Onu korkutmaya calisiyorum...)',
+      act: 'Eylem Yap',
+      architecture_player_action: 'Oyuncu Eylemi',
+      architecture_frontend: 'Arayuz JS',
+      create_universe: 'Evren Olustur',
+      edit_universe: 'Evreni Duzenle',
+      universe_name: 'Evren Adi',
+      universe_name_placeholder: 'ornegin Cyberpunk Istanbul',
+      genre: 'Tur',
+      genre_cyberpunk: 'Cyberpunk',
+      genre_fantasy: 'Yuksek Fantazi',
+      genre_scifi: 'Bilim Kurgu',
+      genre_horror: 'Korku',
+      genre_steampunk: 'Steampunk',
+      description: 'Aciklama',
+      universe_desc_placeholder: 'Evrenini anlat...',
+      cancel: 'Iptal',
+      create: 'Olustur',
+      create_character: 'Karakter Olustur',
+      edit_character: 'Karakteri Duzenle',
+      character_name: 'Karakter Adi',
+      character_name_placeholder: 'ornegin Aethelgard the Wise',
+      class_role: 'Sinif / Rol',
+      class_role_placeholder: 'ornegin Archmage, Warrior, Rogue',
+      type: 'Tur',
+      role_protagonist: 'Bas Karakter',
+      role_antagonist: 'Karsi Karakter',
+      role_npc: 'NPC',
+      role_side_character: 'Yan Karakter',
+      backstory: 'Gecmis Hikaye',
+      backstory_placeholder: 'Karakterin koken hikayesini yaz...',
+      create_quest: 'Gorev Olustur',
+      edit_quest: 'Gorevi Duzenle',
+      quest_title: 'Gorev Basligi',
+      quest_title_placeholder: 'ornegin Buyuk Kusatma',
+      quest_type: 'Gorev Turu',
+      status_label: 'Durum',
+      quest_type_main: 'Ana Gorev Zinciri',
+      quest_type_side: 'Yan Gorev',
+      quest_type_character: 'Karakter Arki',
+      quest_status_active: 'Aktif',
+      quest_status_completed: 'Tamamlandi',
+      quest_status_locked: 'Kilitli',
+      quest_desc_placeholder: 'Gorevin hedeflerini anlat...',
+      add_trait_title: 'Ozellik Ekle',
+      trait_name: 'Ozellik Adi',
+      trait_name_placeholder: 'ornegin Cesur, Kurnaz, Bilge',
+      trait_style: 'Ozellik Stili',
+      trait_default: 'Varsayilan',
+      trait_aggressive: 'Saldirgan',
+      trait_wise: 'Bilge',
+      trait_cowardly: 'Korkak',
+      trait_cunning: 'Kurnaz',
+      trait_brave: 'Cesur',
+      ai_char_generator: 'AI Karakter Uretici',
+      ai_char_description: 'Asagidaki parametreleri ayarla ve AI hikayen icin benzersiz bir karakter olustursun.',
+      world_genre: 'Dunya Turu',
+      character_role: 'Karakter Rolu',
+      personality_theme: 'Kisilik Temasi',
+      theme_balanced: 'Dengeli',
+      theme_dark: 'Karanlik ve Gizemli',
+      theme_noble: 'Asil ve Kahramanca',
+      theme_trickster: 'Hilekar ve Kurnaz',
+      theme_tragic: 'Trajik Kahraman',
+      generate_character: 'Karakter Uret',
+      regenerate: 'Yeniden Uret',
+      add_to_library: 'Kutuphane Ekle',
+      ai_location_generator: 'AI Mekan Uretici',
+      ai_location_description: 'Ihtiyacin olan mekan turunu tanimla ve AI bunu dunyan icin olustursun.',
+      location_type: 'Mekan Turu',
+      atmosphere: 'Atmosfer',
+      location_type_city: 'Sehir / Kasaba',
+      location_type_dungeon: 'Zindan / Magara',
+      location_type_wilderness: 'Vahsi Doga / Orman',
+      location_type_building: 'Bina / Icmekan',
+      location_type_landmark: 'Yapi / Anit',
+      mood_mysterious: 'Gizemli',
+      mood_dangerous: 'Tehlikeli',
+      mood_peaceful: 'Huzurlu',
+      mood_eerie: 'Tekinsiz ve Lanetli',
+      mood_bustling: 'Canli ve Hareketli',
+      generate_location: 'Mekan Uret',
+      add_to_world: 'Dunyaya Ekle',
+      create_location: 'Mekan Olustur',
+      location_name: 'Mekan Adi',
+      location_name_placeholder: 'ornegin Firildayan Magaralar',
+      location_desc_placeholder: 'Bu mekani anlat...',
+      last_edited: 'Son duzenleme {time}',
+      just_now: 'Az once',
+      new_universe_title: 'Yeni Evren',
+      new_universe_desc: 'Yeni bir hikaye kolu baslat ve dunyani sifirdan kur.',
+      universe_characters: 'Karakterler',
+      universe_quests: 'Gorevler',
+      generated_name: 'Uretilen Ad',
+      class_race: 'Sinif ve Irk',
+      generated_backstory: 'Uretilen Gecmis Hikaye',
+      generated_location: 'Uretilen Mekan',
+      type_atmosphere: 'Tur ve Atmosfer',
+      key_features: 'Temel Ozellikler',
+      generated_description: 'Aciklama',
+      backstory_saved: 'Gecmis hikaye kaydedildi!',
+      ai_suggestion_applied: 'AI onerisi uygulandi! (simulasyon)',
+      confirm_delete_universe: 'Bu evreni silmek istedigine emin misin?',
+      confirm_delete_character: 'Bu karakteri silmek istedigine emin misin?',
+      confirm_delete_quest: 'Bu gorevi silmek istedigine emin misin?',
+      confirm_delete_location: 'Bu mekani silmek istiyor musun?',
+      generating_character: 'Karakter uretiliyor...',
+      generating_location: 'Mekan uretiliyor...',
+      select_character_option: 'Bir karakter sec...',
+      select_location_option: 'Bir mekan sec...',
+      encounter_validation: 'Lutfen bir karakter, mekan ve hikaye onermesi sec.',
+      system_label: 'Sistem',
+      error_label: 'Hata',
+      api_failure: 'API hatasi. Hata: {message}',
+      crewai_status: 'CrewAI Motoru - Canli',
+      crewai_start_message: 'Kampanya CrewAI coklu ajan orkestrasyonu ile basladi. Ilk ne yapiyorsun?',
+      crewai_loading: 'CrewAI zarlarini atiyor...',
+      crewai_gm_label: 'Zindan Ustasi (CrewAI)',
+      crewai_npc_label: 'Alt Ajan',
+      crewai_workflow_label: 'CrewAI Adimlari',
+      crewai_hint: 'CrewAI bir Oyun Yoneticisi ajani ve dinamik NPC alt ajanlari kullanir.',
+      crewai_arch_title: 'CrewAI Akis Mimarisi',
+      crewai_arch_description: 'CrewAI karsilasmayi once Oyun Yoneticisi ajanina yonlendirir, sonra yalnizca gerektiginde NPC alt ajanlari olusturur.',
+      crewai_node_2_label: 'Zindan Ustasi',
+      crewai_node_2_sub: 'CrewAI Ajan #1',
+      crewai_node_3_label: 'NPC Oyuncusu',
+      crewai_node_3_sub: 'Dinamik Alt Ajan',
+      crewai_node_4_label: 'Final Karsilasma',
+      crewai_node_4_sub: 'Anlati + NPC cevaplari',
+      langgraph_status: 'LangGraph Is Akisi - Canli',
+      langgraph_start_message: 'Kampanya LangGraph is akisi orkestrasyonu ile basladi. Ilk ne yapiyorsun?',
+      langgraph_loading: 'LangGraph karsilasma dugumlerinde ilerliyor...',
+      langgraph_gm_label: 'Zindan Ustasi (LangGraph)',
+      langgraph_npc_label: 'Graf Dugumu',
+      langgraph_workflow_label: 'LangGraph Adimlari',
+      langgraph_hint: 'LangGraph durum tutan dugumler, kosullu kenarlar ve ortak bir karsilasma durumu kullanir.',
+      langgraph_arch_title: 'LangGraph Akis Mimarisi',
+      langgraph_arch_description: 'LangGraph ortak durumu hazirlar, bir Oyun Yoneticisi dugumu calistirir, kosullu olarak NPC diyalog dugumlerine dallanir ve final cevabi birlestirir.',
+      langgraph_node_2_label: 'Baglam Dugumu',
+      langgraph_node_2_sub: 'Ortak karsilasma durumu',
+      langgraph_node_3_label: 'OY Yonlendirici',
+      langgraph_node_3_sub: 'Yapisal anlati dugumu',
+      langgraph_node_4_label: 'NPC Dali',
+      langgraph_node_4_sub: 'Kosullu dugum + final birlestirme',
+      engine_crewai: 'CrewAI Coklu Ajan',
+      engine_langgraph: 'LangGraph Is Akisi',
+      insight_cowardly_intellect: '{name} cok yuksek zekaya sahip oldugu icin korkak bir geri cekilmeyi muhtemelen illuzyon buyusu ile orterdi. Gizli gecmisine uyum saglamasi icin ozellik listesine "Aldatici" eklemeyi dusun.',
+      insight_aggressive_low_strength: '{name} saldirgan egilimlere sahip ama gucu dusuk. Bu ilgincl bir ic catisma yaratabilir - belki de saldirganligi fiziksel degil sozeldir.',
+      insight_brave_aggressive: '{name} cesareti ve saldirganligi sayesinde dogal bir on saflar lideri olabilir. Savas senaryolarinda komuta edecegi bir ekip dusunebilirsin.',
+      insight_default: '{name} sahip oldugu ozellik kombinasyonuyla guclu anlati firsatlari sunuyor. Kritik anlarda {charClass} yeteneklerinin kisiligiyle nasil etkilesime girdigini dusun.'
+    }
+  };
+
+  let currentLanguage = 'en';
+  const listeners = new Set();
+
+  function detectInitialLanguage() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved && dictionaries[saved]) return saved;
+    return (navigator.language || '').toLowerCase().startsWith('tr') ? 'tr' : 'en';
+  }
+
+  function t(key, vars = {}) {
+    const dict = dictionaries[currentLanguage] || dictionaries.en;
+    const fallback = dictionaries.en[key] || key;
+    const template = dict[key] || fallback;
+    return template.replace(/\{(\w+)\}/g, (_, varName) => `${vars[varName] ?? ''}`);
+  }
+
+  function applyBinding(selector, key, attribute = 'textContent') {
+    const element = document.querySelector(selector);
+    if (!element) return;
+    if (attribute === 'textContent') {
+      element.textContent = t(key);
+    } else {
+      element.setAttribute(attribute, t(key));
+    }
+  }
+
+  function applyStaticTranslations() {
+    const bindings = [
+      ['title', 'app_title'],
+      ['meta[name="description"]', 'meta_description', 'content'],
+      ['#mobileToggle', 'toggle_menu', 'aria-label'],
+      ['#nav-world-hub span:last-child', 'nav_world_hub'],
+      ['#nav-character-forge span:last-child', 'nav_character_forge'],
+      ['#nav-quest-ledger span:last-child', 'nav_quest_ledger'],
+      ['#nav-location-forge span:last-child', 'nav_location_forge'],
+      ['#nav-lore-master span:last-child', 'nav_lore_master'],
+      ['.sidebar__subtitle', 'brand_subtitle'],
+      ['.sidebar__user-role', 'user_role'],
+      ['.sidebar__locale-label', 'language_label'],
+      ['#language-switcher', 'language_selector', 'aria-label'],
+      ['#language-switcher option[value="en"]', 'language_en'],
+      ['#language-switcher option[value="tr"]', 'language_tr'],
+      ['#page-world-hub .page-header__info h1', 'page_world_title'],
+      ['#page-world-hub .page-header__info p', 'page_world_subtitle'],
+      ['#btn-settings', 'settings'],
+      ['#btn-quick-import', 'quick_import'],
+      ['#page-world-hub .section-header h2', 'my_universes'],
+      ['#page-world-hub .section-header__link', 'view_all'],
+      ['.ai-tip-banner__title', 'lore_tip_title'],
+      ['#btn-discuss-ai', 'discuss_with_ai'],
+      ['#page-character-forge .page-header__info h1', 'page_character_title'],
+      ['#page-character-forge .page-header__info p', 'page_character_subtitle'],
+      ['#btn-ai-gen-char', 'ai_generate'],
+      ['#btn-add-character', 'new_character'],
+      ['.char-list__header h3', 'library'],
+      ['#page-quest-ledger .page-header__info h1', 'page_quest_title'],
+      ['#page-quest-ledger .page-header__info p', 'page_quest_subtitle'],
+      ['#btn-add-quest', 'new_quest'],
+      ['#page-location-forge .page-header__info h1', 'page_location_title'],
+      ['#page-location-forge .page-header__info p', 'page_location_subtitle'],
+      ['#btn-ai-gen-location', 'ai_generate'],
+      ['#btn-add-location', 'new_location'],
+      ['#page-lore-master .ai-hero h1', 'encounter_title'],
+      ['#page-lore-master .ai-hero p', 'encounter_subtitle'],
+      ['#encounter-setup .section-title', 'encounter_setup'],
+      ['label[for="enc-character"]', 'encounter_select_character'],
+      ['#enc-character option[value=""]', 'loading_characters'],
+      ['label[for="enc-location"]', 'encounter_select_location'],
+      ['#enc-location option[value=""]', 'loading_locations'],
+      ['label[for="enc-premise"]', 'story_premise'],
+      ['#enc-premise', 'story_premise_placeholder', 'placeholder'],
+      ['label[for="enc-engine"]', 'ai_engine_label'],
+      ['#enc-engine option[value="crewai"]', 'engine_crewai'],
+      ['#enc-engine option[value="langgraph"]', 'engine_langgraph'],
+      ['#btn-start-encounter', 'start_campaign'],
+      ['#btn-end-encounter', 'end_encounter'],
+      ['#ai-input', 'ai_input_placeholder', 'placeholder'],
+      ['#btn-ai-send', 'act'],
+      ['#arch-flow .arch-node:first-child .arch-node__label', 'architecture_player_action'],
+      ['#arch-flow .arch-node:first-child .arch-node__sub', 'architecture_frontend'],
+      ['#modal-universe-title', 'create_universe'],
+      ['label[for="universe-name"]', 'universe_name'],
+      ['#universe-name', 'universe_name_placeholder', 'placeholder'],
+      ['label[for="universe-genre"]', 'genre'],
+      ['#universe-genre option[value="cyberpunk"]', 'genre_cyberpunk'],
+      ['#universe-genre option[value="fantasy"]', 'genre_fantasy'],
+      ['#universe-genre option[value="scifi"]', 'genre_scifi'],
+      ['#universe-genre option[value="horror"]', 'genre_horror'],
+      ['#universe-genre option[value="steampunk"]', 'genre_steampunk'],
+      ['label[for="universe-desc"]', 'description'],
+      ['#universe-desc', 'universe_desc_placeholder', 'placeholder'],
+      ['#modal-universe-cancel', 'cancel'],
+      ['#modal-universe-submit', 'create'],
+      ['#modal-character-title', 'create_character'],
+      ['label[for="char-name"]', 'character_name'],
+      ['#char-name', 'character_name_placeholder', 'placeholder'],
+      ['label[for="char-class"]', 'class_role'],
+      ['#char-class', 'class_role_placeholder', 'placeholder'],
+      ['label[for="char-role-type"]', 'type'],
+      ['#char-role-type option[value="Protagonist"]', 'role_protagonist'],
+      ['#char-role-type option[value="Antagonist"]', 'role_antagonist'],
+      ['#char-role-type option[value="NPC"]', 'role_npc'],
+      ['#char-role-type option[value="Side Character"]', 'role_side_character'],
+      ['label[for="char-backstory"]', 'backstory'],
+      ['#char-backstory-input', 'backstory_placeholder', 'placeholder'],
+      ['#modal-character-cancel', 'cancel'],
+      ['#modal-character-submit', 'create'],
+      ['#modal-quest-title', 'create_quest'],
+      ['label[for="quest-name"]', 'quest_title'],
+      ['#quest-name', 'quest_title_placeholder', 'placeholder'],
+      ['label[for="quest-type"]', 'quest_type'],
+      ['#quest-type option[value="main"]', 'quest_type_main'],
+      ['#quest-type option[value="side"]', 'quest_type_side'],
+      ['#quest-type option[value="character"]', 'quest_type_character'],
+      ['label[for="quest-status-input"]', 'status_label'],
+      ['#quest-status-input option[value="active"]', 'quest_status_active'],
+      ['#quest-status-input option[value="completed"]', 'quest_status_completed'],
+      ['#quest-status-input option[value="locked"]', 'quest_status_locked'],
+      ['label[for="quest-desc-input"]', 'description'],
+      ['#quest-desc-input', 'quest_desc_placeholder', 'placeholder'],
+      ['#modal-quest-cancel', 'cancel'],
+      ['#modal-quest-submit', 'create'],
+      ['#modal-trait .modal__title', 'add_trait_title'],
+      ['label[for="trait-name"]', 'trait_name'],
+      ['#trait-name', 'trait_name_placeholder', 'placeholder'],
+      ['label[for="trait-type"]', 'trait_style'],
+      ['#trait-type option[value="default"]', 'trait_default'],
+      ['#trait-type option[value="aggressive"]', 'trait_aggressive'],
+      ['#trait-type option[value="wise"]', 'trait_wise'],
+      ['#trait-type option[value="cowardly"]', 'trait_cowardly'],
+      ['#trait-type option[value="cunning"]', 'trait_cunning'],
+      ['#trait-type option[value="brave"]', 'trait_brave'],
+      ['#modal-trait-cancel', 'cancel'],
+      ['#form-trait button[type="submit"]', 'add_trait'],
+      ['#modal-ai-char .modal__title', 'ai_char_generator'],
+      ['#ai-gen-char-config > p', 'ai_char_description'],
+      ['label[for="ai-char-genre"]', 'world_genre'],
+      ['#ai-char-genre option[value="fantasy"]', 'genre_fantasy'],
+      ['#ai-char-genre option[value="cyberpunk"]', 'genre_cyberpunk'],
+      ['#ai-char-genre option[value="scifi"]', 'genre_scifi'],
+      ['#ai-char-genre option[value="horror"]', 'genre_horror'],
+      ['#ai-char-genre option[value="steampunk"]', 'genre_steampunk'],
+      ['label[for="ai-char-role"]', 'character_role'],
+      ['#ai-char-role option[value="Protagonist"]', 'role_protagonist'],
+      ['#ai-char-role option[value="Antagonist"]', 'role_antagonist'],
+      ['#ai-char-role option[value="NPC"]', 'role_npc'],
+      ['#ai-char-role option[value="Side Character"]', 'role_side_character'],
+      ['label[for="ai-char-theme"]', 'personality_theme'],
+      ['#ai-char-theme option[value="balanced"]', 'theme_balanced'],
+      ['#ai-char-theme option[value="dark"]', 'theme_dark'],
+      ['#ai-char-theme option[value="noble"]', 'theme_noble'],
+      ['#ai-char-theme option[value="trickster"]', 'theme_trickster'],
+      ['#ai-char-theme option[value="tragic"]', 'theme_tragic'],
+      ['#modal-ai-char-cancel', 'cancel'],
+      ['#btn-ai-char-generate', 'generate_character'],
+      ['#btn-ai-char-retry', 'regenerate'],
+      ['#btn-ai-char-accept', 'add_to_library'],
+      ['#modal-ai-location .modal__title', 'ai_location_generator'],
+      ['#ai-gen-loc-config > p', 'ai_location_description'],
+      ['label[for="ai-loc-genre"]', 'world_genre'],
+      ['#ai-loc-genre option[value="fantasy"]', 'genre_fantasy'],
+      ['#ai-loc-genre option[value="cyberpunk"]', 'genre_cyberpunk'],
+      ['#ai-loc-genre option[value="scifi"]', 'genre_scifi'],
+      ['#ai-loc-genre option[value="horror"]', 'genre_horror'],
+      ['#ai-loc-genre option[value="steampunk"]', 'genre_steampunk'],
+      ['label[for="ai-loc-type"]', 'location_type'],
+      ['#ai-loc-type option[value="city"]', 'location_type_city'],
+      ['#ai-loc-type option[value="dungeon"]', 'location_type_dungeon'],
+      ['#ai-loc-type option[value="wilderness"]', 'location_type_wilderness'],
+      ['#ai-loc-type option[value="building"]', 'location_type_building'],
+      ['#ai-loc-type option[value="landmark"]', 'location_type_landmark'],
+      ['label[for="ai-loc-mood"]', 'atmosphere'],
+      ['#ai-loc-mood option[value="mysterious"]', 'mood_mysterious'],
+      ['#ai-loc-mood option[value="dangerous"]', 'mood_dangerous'],
+      ['#ai-loc-mood option[value="peaceful"]', 'mood_peaceful'],
+      ['#ai-loc-mood option[value="eerie"]', 'mood_eerie'],
+      ['#ai-loc-mood option[value="bustling"]', 'mood_bustling'],
+      ['#modal-ai-location-cancel', 'cancel'],
+      ['#btn-ai-loc-generate', 'generate_location'],
+      ['#btn-ai-loc-retry', 'regenerate'],
+      ['#btn-ai-loc-accept', 'add_to_world'],
+      ['#modal-location-title', 'create_location'],
+      ['label[for="loc-name"]', 'location_name'],
+      ['#loc-name', 'location_name_placeholder', 'placeholder'],
+      ['label[for="loc-type-input"]', 'type'],
+      ['#loc-type-input option[value="city"]', 'location_type_city'],
+      ['#loc-type-input option[value="dungeon"]', 'location_type_dungeon'],
+      ['#loc-type-input option[value="wilderness"]', 'location_type_wilderness'],
+      ['#loc-type-input option[value="building"]', 'location_type_building'],
+      ['#loc-type-input option[value="landmark"]', 'location_type_landmark'],
+      ['label[for="loc-desc-input"]', 'description'],
+      ['#loc-desc-input', 'location_desc_placeholder', 'placeholder'],
+      ['#modal-location-cancel', 'cancel'],
+      ['#modal-location-submit', 'create']
+    ];
+
+    bindings.forEach(([selector, key, attribute]) => applyBinding(selector, key, attribute));
+    document.documentElement.lang = currentLanguage === 'tr' ? 'tr' : 'en';
+  }
+
+  function localizeRelativeTime(value) {
+    if (!value) return '';
+    if (value === 'Just now') return t('just_now');
+    if (currentLanguage === 'en') return value;
+    const hourMatch = value.match(/^(\d+)h ago$/);
+    if (hourMatch) return `${hourMatch[1]} sa once`;
+    const dayMatch = value.match(/^(\d+)d ago$/);
+    if (dayMatch) return `${dayMatch[1]} gun once`;
+    return value;
+  }
+
+  function translateGenre(value) {
+    const map = { cyberpunk: 'genre_cyberpunk', fantasy: 'genre_fantasy', scifi: 'genre_scifi', horror: 'genre_horror', steampunk: 'genre_steampunk' };
+    return t(map[value] || value);
+  }
+
+  function translateRoleType(value) {
+    const map = { Protagonist: 'role_protagonist', Antagonist: 'role_antagonist', NPC: 'role_npc', 'Side Character': 'role_side_character' };
+    return t(map[value] || value);
+  }
+
+  function translateQuestType(value) {
+    const map = { main: 'quest_type_main', side: 'quest_type_side', character: 'quest_type_character' };
+    return t(map[value] || value);
+  }
+
+  function translateQuestStatus(value) {
+    const map = { active: 'quest_status_active', completed: 'quest_status_completed', locked: 'quest_status_locked' };
+    return t(map[value] || value);
+  }
+
+  function translateLocationType(value) {
+    const map = { city: 'location_type_city', dungeon: 'location_type_dungeon', wilderness: 'location_type_wilderness', building: 'location_type_building', landmark: 'location_type_landmark' };
+    return t(map[value] || value);
+  }
+
+  function translateMood(value) {
+    const map = { mysterious: 'mood_mysterious', dangerous: 'mood_dangerous', peaceful: 'mood_peaceful', eerie: 'mood_eerie', bustling: 'mood_bustling' };
+    return t(map[value] || value);
+  }
+
+  function init() {
+    currentLanguage = detectInitialLanguage();
+    const switcher = document.getElementById('language-switcher');
+    if (switcher) {
+      switcher.value = currentLanguage;
+      switcher.addEventListener('change', (event) => setLanguage(event.target.value));
+    }
+    applyStaticTranslations();
+  }
+
+  function setLanguage(language) {
+    if (!dictionaries[language] || language === currentLanguage) return;
+    currentLanguage = language;
+    localStorage.setItem(STORAGE_KEY, currentLanguage);
+    applyStaticTranslations();
+    document.dispatchEvent(new CustomEvent('museai:languagechange', { detail: { language: currentLanguage } }));
+    listeners.forEach(listener => listener(currentLanguage));
+  }
+
+  function getLanguage() { return currentLanguage; }
+  function onChange(listener) {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  }
+
+  return {
+    init,
+    t,
+    setLanguage,
+    getLanguage,
+    onChange,
+    translateGenre,
+    translateRoleType,
+    translateQuestType,
+    translateQuestStatus,
+    translateLocationType,
+    translateMood,
+    localizeRelativeTime
+  };
+})();
+
+
 const Renderer = (() => {
 
   // ── Helpers ──
@@ -358,21 +1098,21 @@ const Renderer = (() => {
     container.innerHTML = `
       <div class="stat-card animate-slide stagger-1">
         <div>
-          <div class="stat-card__label">Total Universes</div>
+          <div class="stat-card__label">${Language.t('stats_total_universes')}</div>
           <div class="stat-card__value">${stats.totalUniverses}</div>
         </div>
         <div class="stat-card__icon">🌐</div>
       </div>
       <div class="stat-card animate-slide stagger-2">
         <div>
-          <div class="stat-card__label">Active Characters</div>
+          <div class="stat-card__label">${Language.t('stats_active_characters')}</div>
           <div class="stat-card__value">${stats.activeCharacters}</div>
         </div>
         <div class="stat-card__icon">👥</div>
       </div>
       <div class="stat-card animate-slide stagger-3">
         <div>
-          <div class="stat-card__label">Quests Completed</div>
+          <div class="stat-card__label">${Language.t('stats_quests_completed')}</div>
           <div class="stat-card__value">${stats.questsCompleted}</div>
         </div>
         <div class="stat-card__icon">✅</div>
@@ -386,27 +1126,27 @@ const Renderer = (() => {
       <div class="card universe-card card--glow animate-slide stagger-${i + 1}" data-id="${uni.id}">
         <div class="universe-card__image-wrapper">
           <img class="card__image" src="${escapeHtml(uni.image)}" alt="${escapeHtml(uni.name)}" loading="lazy">
-          <span class="universe-card__badge badge--${uni.genre}">${escapeHtml(uni.genre)}</span>
+          <span class="universe-card__badge badge--${uni.genre}">${escapeHtml(Language.translateGenre(uni.genre))}</span>
         </div>
         <div class="card__body">
           <h3 class="universe-card__title">${escapeHtml(uni.name)}</h3>
           <p class="universe-card__desc">${escapeHtml(uni.description)}</p>
           <div class="universe-card__stats">
             <div>
-              <div class="universe-card__stat-label">Characters</div>
+              <div class="universe-card__stat-label">${Language.t('universe_characters')}</div>
               <div class="universe-card__stat-value">${uni.characters}</div>
             </div>
             <div>
-              <div class="universe-card__stat-label">Quests</div>
+              <div class="universe-card__stat-label">${Language.t('universe_quests')}</div>
               <div class="universe-card__stat-value">${uni.quests}</div>
             </div>
           </div>
         </div>
         <div class="card__footer">
-          <span class="universe-card__meta">Last edited ${escapeHtml(uni.lastEdited)}</span>
+          <span class="universe-card__meta">${Language.t('last_edited', { time: Language.localizeRelativeTime(uni.lastEdited) })}</span>
           <div class="flex gap-sm">
-            <button class="btn btn--sm btn--outline btn-edit-universe" data-id="${uni.id}" title="Edit">✏️</button>
-            <button class="btn btn--sm btn--danger btn-delete-universe" data-id="${uni.id}" title="Delete">🗑️</button>
+            <button class="btn btn--sm btn--outline btn-edit-universe" data-id="${uni.id}" title="${Language.t('edit')}">✏️</button>
+            <button class="btn btn--sm btn--danger btn-delete-universe" data-id="${uni.id}" title="${Language.t('delete')}">🗑️</button>
           </div>
         </div>
       </div>
@@ -415,8 +1155,8 @@ const Renderer = (() => {
     html += `
       <div class="card universe-card--new animate-slide stagger-${universes.length + 1}" id="btn-new-universe">
         <div class="universe-card--new__icon">＋</div>
-        <div class="universe-card--new__title">New Universe</div>
-        <p class="universe-card--new__desc">Start a new story thread and build your world from scratch.</p>
+        <div class="universe-card--new__title">${Language.t('new_universe_title')}</div>
+        <p class="universe-card--new__desc">${Language.t('new_universe_desc')}</p>
       </div>
     `;
 
@@ -426,7 +1166,7 @@ const Renderer = (() => {
   // ── Character List ──
   function renderCharacterList(container, characters, activeId) {
     if (characters.length === 0) {
-      container.innerHTML = '<div class="empty-state"><p class="text-muted">No characters yet</p></div>';
+      container.innerHTML = `<div class="empty-state"><p class="text-muted">${Language.t('no_characters_yet')}</p></div>`;
       return;
     }
     container.innerHTML = characters.map(char => `
@@ -437,7 +1177,7 @@ const Renderer = (() => {
         }
         <div>
           <div class="char-list-item__name">${escapeHtml(char.name)}</div>
-          <div class="char-list-item__role">${escapeHtml(char.charClass)} · ${escapeHtml(char.roleType)}</div>
+          <div class="char-list-item__role">${escapeHtml(char.charClass)} · ${escapeHtml(Language.translateRoleType(char.roleType))}</div>
         </div>
       </div>
     `).join('');
@@ -449,8 +1189,8 @@ const Renderer = (() => {
       container.innerHTML = `
         <div class="empty-state" id="char-empty-state">
           <div class="empty-state__icon">⚔️</div>
-          <div class="empty-state__title">Select a Character</div>
-          <p class="empty-state__desc">Choose a character from the library to edit their details</p>
+          <div class="empty-state__title">${Language.t('select_character')}</div>
+          <p class="empty-state__desc">${Language.t('choose_character_from_library')}</p>
         </div>`;
       return;
     }
@@ -465,19 +1205,19 @@ const Renderer = (() => {
           <h2 class="char-detail__name">${escapeHtml(char.name)}</h2>
           <div class="char-detail__tags">
             <span class="tag tag--class">${escapeHtml(char.charClass)}</span>
-            <span class="tag tag--level">Level ${char.level}</span>
+            <span class="tag tag--level">${Language.t('level_short', { level: char.level })}</span>
             <span class="tag tag--race">${escapeHtml(char.race)}</span>
           </div>
         </div>
       </div>
 
       <div class="char-section animate-slide">
-        <h3 class="char-section__title"><span>📖</span> Backstory & Origins</h3>
+        <h3 class="char-section__title"><span>📖</span> ${Language.t('character_backstory_origins')}</h3>
         <textarea class="char-backstory" id="char-backstory-edit" data-id="${char.id}">${escapeHtml(char.backstory)}</textarea>
       </div>
 
       <div class="char-section animate-slide">
-        <h3 class="char-section__title"><span>🎯</span> Personality Traits</h3>
+        <h3 class="char-section__title"><span>🎯</span> ${Language.t('personality_traits')}</h3>
         <div class="traits-container" id="traits-container">
           ${char.traits.map((trait, idx) => `
             <div class="trait-chip trait-chip--${trait.type}">
@@ -486,13 +1226,13 @@ const Renderer = (() => {
               <button class="trait-chip__remove btn-remove-trait" data-char-id="${char.id}" data-index="${idx}">✕</button>
             </div>
           `).join('')}
-          <button class="add-trait-btn" id="btn-add-trait" data-char-id="${char.id}">+ Add Trait</button>
+          <button class="add-trait-btn" id="btn-add-trait" data-char-id="${char.id}">+ ${Language.t('add_trait')}</button>
         </div>
       </div>
 
       <div class="char-actions animate-slide">
-        <button class="btn btn--danger btn-delete-char" data-id="${char.id}">🗑️ Delete Character</button>
-        <button class="btn btn--primary btn-save-backstory" data-id="${char.id}">💾 Save Changes</button>
+        <button class="btn btn--danger btn-delete-char" data-id="${char.id}">🗑️ ${Language.t('delete_character')}</button>
+        <button class="btn btn--primary btn-save-backstory" data-id="${char.id}">💾 ${Language.t('save_changes')}</button>
       </div>
     `;
   }
@@ -514,16 +1254,16 @@ const Renderer = (() => {
     container.style.display = '';
     container.innerHTML = `
       <div class="stat-block animate-slide">
-        <h3 class="stat-block__title"><span>📊</span> Core Stats</h3>
-        ${renderStatRow('Strength', char.stats.strength, 'strength', char.id)}
-        ${renderStatRow('Intellect', char.stats.intellect, 'intellect', char.id)}
-        ${renderStatRow('Agility', char.stats.agility, 'agility', char.id)}
-        ${renderStatRow('Charisma', char.stats.charisma, 'charisma', char.id)}
+        <h3 class="stat-block__title"><span>📊</span> ${Language.t('core_stats')}</h3>
+        ${renderStatRow(Language.t('stat_strength'), char.stats.strength, 'strength', char.id)}
+        ${renderStatRow(Language.t('stat_intellect'), char.stats.intellect, 'intellect', char.id)}
+        ${renderStatRow(Language.t('stat_agility'), char.stats.agility, 'agility', char.id)}
+        ${renderStatRow(Language.t('stat_charisma'), char.stats.charisma, 'charisma', char.id)}
       </div>
       <div class="ai-insights animate-slide">
-        <h3 class="ai-insights__title"><span>✨</span> AI Insights</h3>
+        <h3 class="ai-insights__title"><span>✨</span> ${Language.t('ai_insights')}</h3>
         <p class="ai-insights__text" id="ai-char-insight">${generateCharInsight(char)}</p>
-        <button class="btn btn--primary btn--sm w-full" id="btn-apply-suggestion">Apply Suggestion</button>
+        <button class="btn btn--primary btn--sm w-full" id="btn-apply-suggestion">${Language.t('apply_suggestion')}</button>
       </div>
     `;
   }
@@ -553,15 +1293,15 @@ const Renderer = (() => {
   function generateCharInsight(char) {
     const traitNames = char.traits.map(t => t.name.toLowerCase());
     if (traitNames.includes('cowardly') && char.stats.intellect > 80) {
-      return `"${char.name}'s high intellect suggests they would likely use illusion magic to cover any cowardly retreat. Consider adding 'Deceptive' to their trait list to align with their secret backstory."`;
+      return `"${Language.t('insight_cowardly_intellect', { name: char.name })}"`;
     }
     if (traitNames.includes('aggressive') && char.stats.strength < 30) {
-      return `"${char.name} has aggressive tendencies but low strength. This could create interesting internal conflict — perhaps their aggression is verbal, not physical."`;
+      return `"${Language.t('insight_aggressive_low_strength', { name: char.name })}"`;
     }
     if (traitNames.includes('brave') && traitNames.includes('aggressive')) {
-      return `"${char.name}'s bravery combined with aggression makes them a natural frontline leader. Consider giving them a squad to command in battle scenarios."`;
+      return `"${Language.t('insight_brave_aggressive', { name: char.name })}"`;
     }
-    return `"${char.name}'s unique combination of traits creates narrative opportunities. Consider how their ${char.charClass} abilities interact with their personality in critical moments."`;
+    return `"${Language.t('insight_default', { name: char.name, charClass: char.charClass })}"`;
   }
 
   // ── Quest List ──
@@ -570,8 +1310,8 @@ const Renderer = (() => {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state__icon">📜</div>
-          <div class="empty-state__title">No Quests Yet</div>
-          <p class="empty-state__desc">Create your first quest to start building your narrative</p>
+          <div class="empty-state__title">${Language.t('no_quests_yet')}</div>
+          <p class="empty-state__desc">${Language.t('create_first_quest')}</p>
         </div>`;
       return;
     }
@@ -584,9 +1324,9 @@ const Renderer = (() => {
         <div style="flex:1;">
           <div class="flex items-center justify-between">
             <h3 class="quest-card__title">${escapeHtml(quest.title)}</h3>
-            <span class="status-badge status-badge--${quest.status}">${quest.status}</span>
+            <span class="status-badge status-badge--${quest.status}">${Language.translateQuestStatus(quest.status)}</span>
           </div>
-          <div class="quest-card__type">${capitalize(quest.type)} · ${quest.phase}</div>
+          <div class="quest-card__type">${Language.translateQuestType(quest.type)} · ${quest.phase}</div>
           <p class="quest-card__desc">${escapeHtml(quest.description)}</p>
         </div>
       </div>
@@ -608,8 +1348,8 @@ const Renderer = (() => {
       container.innerHTML = `
         <div class="empty-state" id="quest-empty-state">
           <div class="empty-state__icon">📜</div>
-          <div class="empty-state__title">Select a Quest</div>
-          <p class="empty-state__desc">Choose a quest from the list to see its details and milestones</p>
+          <div class="empty-state__title">${Language.t('select_quest')}</div>
+          <p class="empty-state__desc">${Language.t('choose_quest_from_list')}</p>
         </div>`;
       return;
     }
@@ -622,16 +1362,16 @@ const Renderer = (() => {
       <div class="animate-slide">
         <div class="flex items-center justify-between mb-md">
           <h2 class="quest-detail__title">${escapeHtml(quest.title)}</h2>
-          <span class="status-badge status-badge--${quest.status}">${quest.status}</span>
+          <span class="status-badge status-badge--${quest.status}">${Language.translateQuestStatus(quest.status)}</span>
         </div>
         <p style="font-size:0.88rem;color:var(--color-text-secondary);margin-bottom:var(--space-md);">${escapeHtml(quest.description)}</p>
 
-        <div class="quest-detail__section-title">Progress — ${progressPct}%</div>
+        <div class="quest-detail__section-title">${Language.t('progress')} - ${progressPct}%</div>
         <div class="stat-bar mb-lg">
           <div class="stat-bar__fill" style="width:${progressPct}%;background:linear-gradient(90deg,var(--color-accent-green),var(--color-accent-cyan));"></div>
         </div>
 
-        <div class="quest-detail__section-title">Milestones</div>
+        <div class="quest-detail__section-title">${Language.t('milestones')}</div>
         <div class="milestone-list" id="milestone-list">
           ${quest.milestones.map((ms, idx) => `
             <div class="milestone ${ms.done ? 'milestone--done' : idx === completedCount ? 'milestone--active' : ''}">
@@ -644,8 +1384,8 @@ const Renderer = (() => {
         </div>
 
         <div class="flex gap-sm mt-lg" style="justify-content:flex-end;">
-          <button class="btn btn--danger btn--sm btn-delete-quest" data-id="${quest.id}">🗑️ Delete</button>
-          <button class="btn btn--outline btn--sm btn-edit-quest" data-id="${quest.id}">✏️ Edit</button>
+          <button class="btn btn--danger btn--sm btn-delete-quest" data-id="${quest.id}">🗑️ ${Language.t('delete')}</button>
+          <button class="btn btn--outline btn--sm btn-edit-quest" data-id="${quest.id}">✏️ ${Language.t('edit')}</button>
         </div>
       </div>
     `;
@@ -743,12 +1483,19 @@ const Controller = (() => {
 
   function init() {
     DataStore.load();
+    Language.init();
     ModalManager.setupBackdropClose();
     bindNavigation();
     bindWorldHub();
     bindCharacterForge();
     bindQuestLedger();
     bindMobileToggle();
+    Language.onChange(() => {
+      renderWorldHub();
+      renderCharacterForge();
+      renderQuestLedger();
+      document.dispatchEvent(new CustomEvent('museai:location-render-request'));
+    });
     renderWorldHub();
   }
 
@@ -768,6 +1515,7 @@ const Controller = (() => {
       case 'world-hub':       renderWorldHub(); break;
       case 'character-forge': renderCharacterForge(); break;
       case 'quest-ledger':    renderQuestLedger(); break;
+      case 'location-forge':  document.dispatchEvent(new CustomEvent('museai:location-render-request')); break;
       case 'lore-master':     break; // Static page
     }
   }
@@ -819,7 +1567,7 @@ const Controller = (() => {
         openUniverseModal(id);
       } else if (deleteBtn) {
         const id = deleteBtn.getAttribute('data-id');
-        if (confirm('Are you sure you want to delete this universe?')) {
+        if (confirm(Language.t('confirm_delete_universe'))) {
           DataStore.deleteUniverse(id);
           renderWorldHub();
         }
@@ -835,15 +1583,15 @@ const Controller = (() => {
     if (editId) {
       const uni = DataStore.getUniverses().find(u => u.id === editId);
       if (!uni) return;
-      titleEl.textContent = 'Edit Universe';
-      submitBtn.textContent = 'Save Changes';
+      titleEl.textContent = Language.t('edit_universe');
+      submitBtn.textContent = Language.t('save_changes');
       hiddenId.value = editId;
       document.getElementById('universe-name').value = uni.name;
       document.getElementById('universe-genre').value = uni.genre;
       document.getElementById('universe-desc').value = uni.description;
     } else {
-      titleEl.textContent = 'Create Universe';
-      submitBtn.textContent = 'Create';
+      titleEl.textContent = Language.t('create_universe');
+      submitBtn.textContent = Language.t('create');
       hiddenId.value = '';
     }
     ModalManager.open('modal-universe');
@@ -925,13 +1673,13 @@ const Controller = (() => {
       const charId = e.target.getAttribute('data-id');
       const backstory = document.getElementById('char-backstory-edit')?.value || '';
       DataStore.updateCharacter(charId, { backstory });
-      showToast('Backstory saved!');
+      showToast(Language.t('backstory_saved'));
     });
 
     // Delete character
     document.querySelector('.btn-delete-char')?.addEventListener('click', (e) => {
       const charId = e.target.getAttribute('data-id');
-      if (confirm('Are you sure you want to delete this character?')) {
+      if (confirm(Language.t('confirm_delete_character'))) {
         DataStore.deleteCharacter(charId);
         selectedCharacterId = null;
         renderCharacterForge();
@@ -965,7 +1713,7 @@ const Controller = (() => {
 
     // AI Apply Suggestion
     document.getElementById('btn-apply-suggestion')?.addEventListener('click', () => {
-      showToast('AI suggestion applied! (simulated)');
+      showToast(Language.t('ai_suggestion_applied'));
     });
   }
 
@@ -977,16 +1725,16 @@ const Controller = (() => {
     if (editId) {
       const char = DataStore.getCharacter(editId);
       if (!char) return;
-      titleEl.textContent = 'Edit Character';
-      submitBtn.textContent = 'Save Changes';
+      titleEl.textContent = Language.t('edit_character');
+      submitBtn.textContent = Language.t('save_changes');
       hiddenId.value = editId;
       document.getElementById('char-name').value = char.name;
       document.getElementById('char-class').value = char.charClass;
       document.getElementById('char-role-type').value = char.roleType;
       document.getElementById('char-backstory-input').value = char.backstory;
     } else {
-      titleEl.textContent = 'Create Character';
-      submitBtn.textContent = 'Create';
+      titleEl.textContent = Language.t('create_character');
+      submitBtn.textContent = Language.t('create');
       hiddenId.value = '';
     }
     ModalManager.open('modal-character');
@@ -1084,7 +1832,7 @@ const Controller = (() => {
     // Delete quest
     document.querySelector('.btn-delete-quest')?.addEventListener('click', (e) => {
       const id = e.target.getAttribute('data-id');
-      if (confirm('Are you sure you want to delete this quest?')) {
+      if (confirm(Language.t('confirm_delete_quest'))) {
         DataStore.deleteQuest(id);
         selectedQuestId = null;
         renderQuestLedger();
@@ -1106,16 +1854,16 @@ const Controller = (() => {
     if (editId) {
       const quest = DataStore.getQuest(editId);
       if (!quest) return;
-      titleEl.textContent = 'Edit Quest';
-      submitBtn.textContent = 'Save Changes';
+      titleEl.textContent = Language.t('edit_quest');
+      submitBtn.textContent = Language.t('save_changes');
       hiddenId.value = editId;
       document.getElementById('quest-name').value = quest.title;
       document.getElementById('quest-type').value = quest.type;
       document.getElementById('quest-status-input').value = quest.status;
       document.getElementById('quest-desc-input').value = quest.description;
     } else {
-      titleEl.textContent = 'Create Quest';
-      submitBtn.textContent = 'Create';
+      titleEl.textContent = Language.t('create_quest');
+      submitBtn.textContent = Language.t('create');
       hiddenId.value = '';
     }
     ModalManager.open('modal-quest');
@@ -1463,30 +2211,30 @@ const AIGenerator = (() => {
   function renderCharacterResult(char) {
     return `
       <div class="ai-gen-step">
-        <div class="ai-gen-step__label">✨ Generated Name</div>
+        <div class="ai-gen-step__label">✨ ${Language.t('generated_name')}</div>
         <div class="ai-gen-step__value ai-gen-step__value--large">${Renderer.escapeHtml(char.name)}</div>
       </div>
       <div class="ai-gen-step">
-        <div class="ai-gen-step__label">⚔️ Class & Race</div>
-        <div class="ai-gen-step__value">${Renderer.escapeHtml(char.charClass)} · ${Renderer.escapeHtml(char.race)} · Level ${char.level}</div>
+        <div class="ai-gen-step__label">⚔️ ${Language.t('class_race')}</div>
+        <div class="ai-gen-step__value">${Renderer.escapeHtml(char.charClass)} · ${Renderer.escapeHtml(char.race)} · ${Language.t('level_short', { level: char.level })}</div>
       </div>
       <div class="ai-gen-step">
-        <div class="ai-gen-step__label">📊 Core Stats</div>
+        <div class="ai-gen-step__label">📊 ${Language.t('core_stats')}</div>
         <div class="ai-gen-stats">
-          <div class="ai-gen-stat"><span class="ai-gen-stat__label">Strength</span><span class="ai-gen-stat__value" style="color:var(--color-accent-red)">${char.stats.strength}</span></div>
-          <div class="ai-gen-stat"><span class="ai-gen-stat__label">Intellect</span><span class="ai-gen-stat__value" style="color:var(--color-accent-cyan)">${char.stats.intellect}</span></div>
-          <div class="ai-gen-stat"><span class="ai-gen-stat__label">Agility</span><span class="ai-gen-stat__value" style="color:var(--color-accent-green)">${char.stats.agility}</span></div>
-          <div class="ai-gen-stat"><span class="ai-gen-stat__label">Charisma</span><span class="ai-gen-stat__value" style="color:var(--color-accent-pink)">${char.stats.charisma}</span></div>
+          <div class="ai-gen-stat"><span class="ai-gen-stat__label">${Language.t('stat_strength')}</span><span class="ai-gen-stat__value" style="color:var(--color-accent-red)">${char.stats.strength}</span></div>
+          <div class="ai-gen-stat"><span class="ai-gen-stat__label">${Language.t('stat_intellect')}</span><span class="ai-gen-stat__value" style="color:var(--color-accent-cyan)">${char.stats.intellect}</span></div>
+          <div class="ai-gen-stat"><span class="ai-gen-stat__label">${Language.t('stat_agility')}</span><span class="ai-gen-stat__value" style="color:var(--color-accent-green)">${char.stats.agility}</span></div>
+          <div class="ai-gen-stat"><span class="ai-gen-stat__label">${Language.t('stat_charisma')}</span><span class="ai-gen-stat__value" style="color:var(--color-accent-pink)">${char.stats.charisma}</span></div>
         </div>
       </div>
       <div class="ai-gen-step">
-        <div class="ai-gen-step__label">🎯 Personality Traits</div>
+        <div class="ai-gen-step__label">🎯 ${Language.t('personality_traits')}</div>
         <div class="ai-gen-traits">
           ${char.traits.map(t => `<div class="trait-chip trait-chip--${t.type}"><span class="trait-chip__icon">${Renderer.escapeHtml(getTraitIcon(t.type))}</span> ${Renderer.escapeHtml(t.name)}</div>`).join('')}
         </div>
       </div>
       <div class="ai-gen-step">
-        <div class="ai-gen-step__label">📖 Generated Backstory</div>
+        <div class="ai-gen-step__label">📖 ${Language.t('generated_backstory')}</div>
         <div class="ai-gen-step__value ai-gen-step__value--text">${Renderer.escapeHtml(char.backstory)}</div>
       </div>
     `;
@@ -1501,19 +2249,19 @@ const AIGenerator = (() => {
   function renderLocationResult(loc) {
     return `
       <div class="ai-gen-step">
-        <div class="ai-gen-step__label">${loc.icon} Generated Location</div>
+        <div class="ai-gen-step__label">${loc.icon} ${Language.t('generated_location')}</div>
         <div class="ai-gen-step__value ai-gen-step__value--large">${Renderer.escapeHtml(loc.name)}</div>
       </div>
       <div class="ai-gen-step">
-        <div class="ai-gen-step__label">📌 Type & Atmosphere</div>
-        <div class="ai-gen-step__value">${Renderer.capitalize(loc.type)} · ${Renderer.capitalize(loc.mood)} · Danger Level: ${loc.dangerLevel}/10</div>
+        <div class="ai-gen-step__label">📌 ${Language.t('type_atmosphere')}</div>
+        <div class="ai-gen-step__value">${Language.translateLocationType(loc.type)} · ${Language.translateMood(loc.mood)} · ${Language.t('danger_level_short', { value: loc.dangerLevel })}</div>
       </div>
       <div class="ai-gen-step">
-        <div class="ai-gen-step__label">📝 Description</div>
+        <div class="ai-gen-step__label">📝 ${Language.t('generated_description')}</div>
         <div class="ai-gen-step__value ai-gen-step__value--text">${Renderer.escapeHtml(loc.description)}</div>
       </div>
       <div class="ai-gen-step">
-        <div class="ai-gen-step__label">🗝️ Key Features</div>
+        <div class="ai-gen-step__label">🗝️ ${Language.t('key_features')}</div>
         <div class="location-features">
           ${loc.features.map(f => `<span class="location-feature">${Renderer.escapeHtml(f)}</span>`).join('')}
         </div>
@@ -1607,7 +2355,7 @@ const AIGenerator = (() => {
           <div class="location-card__icon location-card__icon--${loc.type}">${loc.icon || typeIcons[loc.type] || '📍'}</div>
           <div>
             <div class="location-card__name">${Renderer.escapeHtml(loc.name)}</div>
-            <div class="location-card__type">${Renderer.capitalize(loc.type)} · Danger: ${loc.dangerLevel || '?'}/10</div>
+            <div class="location-card__type">${Language.translateLocationType(loc.type)} · ${Language.t('danger_level_short', { value: loc.dangerLevel || '?' })}</div>
           </div>
         </div>
         <p class="location-card__desc">${Renderer.escapeHtml(loc.description)}</p>
@@ -1615,7 +2363,7 @@ const AIGenerator = (() => {
           <div class="location-features mb-md">${loc.features.map(f => `<span class="location-feature">${Renderer.escapeHtml(f)}</span>`).join('')}</div>
         ` : ''}
         <div class="location-card__footer">
-          <span class="location-card__mood">${loc.mood ? Renderer.capitalize(loc.mood) : ''}</span>
+          <span class="location-card__mood">${loc.mood ? Language.translateMood(loc.mood) : ''}</span>
           <button class="btn btn--sm btn--danger btn-delete-location" data-id="${loc.id}">🗑️</button>
         </div>
       </div>
@@ -1624,8 +2372,8 @@ const AIGenerator = (() => {
     html += `
       <div class="location-card location-card--new" id="btn-new-loc-card">
         <div class="universe-card--new__icon">＋</div>
-        <div class="universe-card--new__title">New Location</div>
-        <p class="universe-card--new__desc">Add a new place to your world</p>
+        <div class="universe-card--new__title">${Language.t('new_location')}</div>
+        <p class="universe-card--new__desc">${Language.t('add_location_to_world')}</p>
       </div>
     `;
 
@@ -1635,7 +2383,7 @@ const AIGenerator = (() => {
     grid.querySelectorAll('.btn-delete-location').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (confirm('Delete this location?')) {
+        if (confirm(Language.t('confirm_delete_location'))) {
           DataStore.deleteLocation(btn.getAttribute('data-id'));
           renderLocationForge();
         }
@@ -1650,6 +2398,19 @@ const AIGenerator = (() => {
     origNav.call(Router, pageId);
     if (pageId === 'location-forge') renderLocationForge();
   };
+
+  document.addEventListener('museai:location-render-request', () => {
+    if (Router.getCurrentPage() === 'location-forge') renderLocationForge();
+  });
+
+  document.addEventListener('museai:languagechange', () => {
+    if (_lastGenChar && !document.getElementById('ai-gen-char-output')?.classList.contains('hidden')) {
+      document.getElementById('ai-gen-char-result').innerHTML = AIGenerator.renderCharacterResult(_lastGenChar);
+    }
+    if (_lastGenLoc && !document.getElementById('ai-gen-loc-output')?.classList.contains('hidden')) {
+      document.getElementById('ai-gen-loc-result').innerHTML = AIGenerator.renderLocationResult(_lastGenLoc);
+    }
+  });
 
   function bindAIGenerators() {
     // ── AI Character Generator ──
@@ -1708,7 +2469,7 @@ const AIGenerator = (() => {
 
     configEl?.classList.add('hidden');
     outputEl?.classList.remove('hidden');
-    resultEl.innerHTML = '<div class="ai-gen-loading"><div class="ai-gen-spinner"></div>Generating character...</div>';
+    resultEl.innerHTML = `<div class="ai-gen-loading"><div class="ai-gen-spinner"></div>${Language.t('generating_character')}</div>`;
 
     setTimeout(() => {
       _lastGenChar = AIGenerator.generateCharacter(genre, role, theme);
@@ -1727,7 +2488,7 @@ const AIGenerator = (() => {
 
     configEl?.classList.add('hidden');
     outputEl?.classList.remove('hidden');
-    resultEl.innerHTML = '<div class="ai-gen-loading"><div class="ai-gen-spinner"></div>Generating location...</div>';
+    resultEl.innerHTML = `<div class="ai-gen-loading"><div class="ai-gen-spinner"></div>${Language.t('generating_location')}</div>`;
 
     setTimeout(() => {
       _lastGenLoc = AIGenerator.generateLocation(genre, type, mood);
@@ -1800,6 +2561,45 @@ const AIGenerator = (() => {
         node4Sub: 'Conditional node + final assembly'
       }
     };
+
+    const getEngineConfigMap = () => ({
+      crewai: {
+        ...ENGINE_CONFIG.crewai,
+        status: Language.t('crewai_status'),
+        startMessage: Language.t('crewai_start_message'),
+        loadingText: Language.t('crewai_loading'),
+        gmLabel: Language.t('crewai_gm_label'),
+        npcLabel: Language.t('crewai_npc_label'),
+        workflowLabel: Language.t('crewai_workflow_label'),
+        hint: Language.t('crewai_hint'),
+        archTitle: Language.t('crewai_arch_title'),
+        archDescription: Language.t('crewai_arch_description'),
+        node2Label: Language.t('crewai_node_2_label'),
+        node2Sub: Language.t('crewai_node_2_sub'),
+        node3Label: Language.t('crewai_node_3_label'),
+        node3Sub: Language.t('crewai_node_3_sub'),
+        node4Label: Language.t('crewai_node_4_label'),
+        node4Sub: Language.t('crewai_node_4_sub')
+      },
+      langgraph: {
+        ...ENGINE_CONFIG.langgraph,
+        status: Language.t('langgraph_status'),
+        startMessage: Language.t('langgraph_start_message'),
+        loadingText: Language.t('langgraph_loading'),
+        gmLabel: Language.t('langgraph_gm_label'),
+        npcLabel: Language.t('langgraph_npc_label'),
+        workflowLabel: Language.t('langgraph_workflow_label'),
+        hint: Language.t('langgraph_hint'),
+        archTitle: Language.t('langgraph_arch_title'),
+        archDescription: Language.t('langgraph_arch_description'),
+        node2Label: Language.t('langgraph_node_2_label'),
+        node2Sub: Language.t('langgraph_node_2_sub'),
+        node3Label: Language.t('langgraph_node_3_label'),
+        node3Sub: Language.t('langgraph_node_3_sub'),
+        node4Label: Language.t('langgraph_node_4_label'),
+        node4Sub: Language.t('langgraph_node_4_sub')
+      }
+    });
     
     // State logic for Campaign
     let campaignHistory = "";
@@ -1807,11 +2607,11 @@ const AIGenerator = (() => {
 
     const getSelectedEngine = () => {
       const value = engineSelect?.value || 'crewai';
-      return ENGINE_CONFIG[value] ? value : 'crewai';
+      return getEngineConfigMap()[value] ? value : 'crewai';
     };
 
     const syncEncounterEngineUI = (engineKey = getSelectedEngine()) => {
-      const cfg = ENGINE_CONFIG[engineKey];
+      const cfg = getEngineConfigMap()[engineKey];
       if (engineHint) engineHint.textContent = cfg.hint;
       if (engineStatus) engineStatus.textContent = cfg.status;
       if (archTitle) archTitle.textContent = cfg.archTitle;
@@ -1831,14 +2631,18 @@ const AIGenerator = (() => {
     const populateDropdowns = () => {
       const chars = DataStore.getCharacters();
       const locs = DataStore.getLocations();
+      const selectedChar = charSelect?.value || '';
+      const selectedLoc = locSelect?.value || '';
       
       if(charSelect) {
-        charSelect.innerHTML = '<option value="">Select a character...</option>' + 
+        charSelect.innerHTML = `<option value="">${Language.t('select_character_option')}</option>` + 
           chars.map(c => `<option value="${c.id}">${c.name} (${c.charClass})</option>`).join('');
+        charSelect.value = selectedChar;
       }
       if(locSelect) {
-        locSelect.innerHTML = '<option value="">Select a location...</option>' + 
+        locSelect.innerHTML = `<option value="">${Language.t('select_location_option')}</option>` + 
           locs.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+        locSelect.value = selectedLoc;
       }
     };
 
@@ -1855,7 +2659,7 @@ const AIGenerator = (() => {
       const premiseDesc = document.getElementById('enc-premise').value.trim();
 
       if (!charId || !locId || !premiseDesc) {
-        alert('Please select a character, location, and set a story premise.');
+        alert(Language.t('encounter_validation'));
         return;
       }
 
@@ -1867,11 +2671,11 @@ const AIGenerator = (() => {
       document.getElementById('encounter-setup').classList.add('hidden');
       document.getElementById('ai-chat').classList.remove('hidden');
       
-      const activeEngine = ENGINE_CONFIG[getSelectedEngine()];
+      const activeEngine = getEngineConfigMap()[getSelectedEngine()];
       const msgs = document.getElementById('ai-messages');
       msgs.innerHTML = `
         <div class="ai-msg ai-msg--ai">
-          <div class="ai-msg__label">Dungeon Master System</div>
+          <div class="ai-msg__label">${Language.t('system_label')}</div>
           <div>${Renderer.escapeHtml(activeEngine.startMessage)}</div>
         </div>
       `;
@@ -1898,7 +2702,7 @@ const AIGenerator = (() => {
       const loc = DataStore.getLocation(locSelect.value);
       const story_premise = document.getElementById('enc-premise').value.trim();
       const selectedEngine = getSelectedEngine();
-      const engineConfig = ENGINE_CONFIG[selectedEngine];
+      const engineConfig = getEngineConfigMap()[selectedEngine];
       
       const player_stats = `Stats: Strength ${char.stats.strength}, Intellect ${char.stats.intellect}, Agility ${char.stats.agility}, Charisma ${char.stats.charisma}. Traits: ${char.traits.map(t => t.name).join(', ')}`;
       const location_context = `${loc.name} (${loc.type}). Mood: ${loc.moodDescription}. Danger Level: ${loc.dangerLevel}. Features: ${loc.features.join(', ')}`;
@@ -1916,7 +2720,7 @@ const AIGenerator = (() => {
       // Add loading state
       const loadingDiv = document.createElement('div');
       loadingDiv.className = 'ai-msg ai-msg--ai';
-      loadingDiv.innerHTML = `<div class="ai-msg__label">System</div><div><span class="ai-chat__status" style="display:inline-block; margin-right:8px;"></span> ${Renderer.escapeHtml(engineConfig.loadingText)}</div>`;
+      loadingDiv.innerHTML = `<div class="ai-msg__label">${Language.t('system_label')}</div><div><span class="ai-chat__status" style="display:inline-block; margin-right:8px;"></span> ${Renderer.escapeHtml(engineConfig.loadingText)}</div>`;
       msgs.appendChild(loadingDiv);
       msgs.scrollTop = msgs.scrollHeight;
 
@@ -1940,8 +2744,9 @@ const AIGenerator = (() => {
         
         if (data.status === 'success') {
           const result = data.data;
-          const resultEngine = ENGINE_CONFIG[result.engine] ? result.engine : selectedEngine;
-          const resultConfig = ENGINE_CONFIG[resultEngine];
+          const configMap = getEngineConfigMap();
+          const resultEngine = configMap[result.engine] ? result.engine : selectedEngine;
+          const resultConfig = configMap[resultEngine];
           syncEncounterEngineUI(resultEngine);
           
           campaignHistory += `\\nGame Master: ${result.gm_narration}`;
@@ -1980,13 +2785,17 @@ const AIGenerator = (() => {
         if(msgs.contains(loadingDiv)) msgs.removeChild(loadingDiv);
         const errDiv = document.createElement('div');
         errDiv.className = 'ai-msg ai-msg--ai';
-        errDiv.innerHTML = `<div class="ai-msg__label">Error</div><div style="color:red;">API Failure. Error: ${err.message}</div>`;
+        errDiv.innerHTML = `<div class="ai-msg__label">${Language.t('error_label')}</div><div style="color:red;">${Language.t('api_failure', { message: err.message })}</div>`;
         msgs.appendChild(errDiv);
       }
       msgs.scrollTop = msgs.scrollHeight;
     }
 
     engineSelect?.addEventListener('change', () => syncEncounterEngineUI());
+    document.addEventListener('museai:languagechange', () => {
+      populateDropdowns();
+      syncEncounterEngineUI();
+    });
     syncEncounterEngineUI();
   }
 })();

@@ -1740,11 +1740,92 @@ const AIGenerator = (() => {
     const btnSend = document.getElementById('btn-ai-send');
     const charSelect = document.getElementById('enc-character');
     const locSelect = document.getElementById('enc-location');
+    const engineSelect = document.getElementById('enc-engine');
+    const engineHint = document.getElementById('enc-engine-hint');
+    const engineStatus = document.getElementById('ai-engine-status');
+    const archTitle = document.getElementById('arch-title');
+    const archDescription = document.getElementById('arch-description');
+    const archNode2Icon = document.getElementById('arch-node-2-icon');
+    const archNode2Label = document.getElementById('arch-node-2-label');
+    const archNode2Sub = document.getElementById('arch-node-2-sub');
+    const archNode3Icon = document.getElementById('arch-node-3-icon');
+    const archNode3Label = document.getElementById('arch-node-3-label');
+    const archNode3Sub = document.getElementById('arch-node-3-sub');
+    const archNode4Icon = document.getElementById('arch-node-4-icon');
+    const archNode4Label = document.getElementById('arch-node-4-label');
+    const archNode4Sub = document.getElementById('arch-node-4-sub');
     const inputAction = document.getElementById('ai-input');
+
+    const ENGINE_CONFIG = {
+      crewai: {
+        name: 'CrewAI',
+        status: 'CrewAI Engine — Live',
+        startMessage: 'Campaign started with CrewAI multi-agent orchestration. What do you do first?',
+        loadingText: 'CrewAI is rolling the dice...',
+        gmLabel: 'Dungeon Master (CrewAI)',
+        npcLabel: 'Sub-Agent',
+        workflowLabel: 'CrewAI Steps',
+        hint: 'CrewAI uses a Game Master agent and dynamic NPC sub-agents.',
+        archTitle: '⚙️ CrewAI Flow Architecture',
+        archDescription: 'CrewAI routes the encounter through a Game Master agent, then dynamically spawns NPC sub-agents only when a character should react.',
+        node2Icon: '🎲',
+        node2Label: 'Dungeon Master',
+        node2Sub: 'CrewAI Agent #1',
+        node3Icon: '👤',
+        node3Label: 'NPC Actor',
+        node3Sub: 'Dynamic Sub-Agent',
+        node4Icon: '📦',
+        node4Label: 'Final Encounter',
+        node4Sub: 'Narration + NPC replies'
+      },
+      langgraph: {
+        name: 'LangGraph',
+        status: 'LangGraph Workflow — Live',
+        startMessage: 'Campaign started with LangGraph workflow orchestration. What do you do first?',
+        loadingText: 'LangGraph is traversing the encounter nodes...',
+        gmLabel: 'Dungeon Master (LangGraph)',
+        npcLabel: 'Graph Node',
+        workflowLabel: 'LangGraph Steps',
+        hint: 'LangGraph uses stateful nodes, conditional edges, and a shared encounter state.',
+        archTitle: '⚙️ LangGraph Flow Architecture',
+        archDescription: 'LangGraph prepares shared state, runs a Game Master node, conditionally branches into NPC dialogue nodes, and then assembles the final response.',
+        node2Icon: '🧠',
+        node2Label: 'Context Node',
+        node2Sub: 'Shared encounter state',
+        node3Icon: '🗺️',
+        node3Label: 'GM Router',
+        node3Sub: 'Structured narration node',
+        node4Icon: '🔀',
+        node4Label: 'NPC Branch',
+        node4Sub: 'Conditional node + final assembly'
+      }
+    };
     
     // State logic for Campaign
     let campaignHistory = "";
     let npcHistories = {};
+
+    const getSelectedEngine = () => {
+      const value = engineSelect?.value || 'crewai';
+      return ENGINE_CONFIG[value] ? value : 'crewai';
+    };
+
+    const syncEncounterEngineUI = (engineKey = getSelectedEngine()) => {
+      const cfg = ENGINE_CONFIG[engineKey];
+      if (engineHint) engineHint.textContent = cfg.hint;
+      if (engineStatus) engineStatus.textContent = cfg.status;
+      if (archTitle) archTitle.textContent = cfg.archTitle;
+      if (archDescription) archDescription.textContent = cfg.archDescription;
+      if (archNode2Icon) archNode2Icon.textContent = cfg.node2Icon;
+      if (archNode2Label) archNode2Label.textContent = cfg.node2Label;
+      if (archNode2Sub) archNode2Sub.textContent = cfg.node2Sub;
+      if (archNode3Icon) archNode3Icon.textContent = cfg.node3Icon;
+      if (archNode3Label) archNode3Label.textContent = cfg.node3Label;
+      if (archNode3Sub) archNode3Sub.textContent = cfg.node3Sub;
+      if (archNode4Icon) archNode4Icon.textContent = cfg.node4Icon;
+      if (archNode4Label) archNode4Label.textContent = cfg.node4Label;
+      if (archNode4Sub) archNode4Sub.textContent = cfg.node4Sub;
+    };
     
     // Populate dropdowns when page is active
     const populateDropdowns = () => {
@@ -1781,15 +1862,17 @@ const AIGenerator = (() => {
       // Reset histories
       campaignHistory = "--- CAMPAIGN START ---\\nInitial Premise: " + premiseDesc + "\\n";
       npcHistories = {};
+      syncEncounterEngineUI();
 
       document.getElementById('encounter-setup').classList.add('hidden');
       document.getElementById('ai-chat').classList.remove('hidden');
       
+      const activeEngine = ENGINE_CONFIG[getSelectedEngine()];
       const msgs = document.getElementById('ai-messages');
       msgs.innerHTML = `
         <div class="ai-msg ai-msg--ai">
           <div class="ai-msg__label">Dungeon Master System</div>
-          <div>Campaign started! You are now in the world based on your premise. What do you do?</div>
+          <div>${Renderer.escapeHtml(activeEngine.startMessage)}</div>
         </div>
       `;
     });
@@ -1814,6 +1897,8 @@ const AIGenerator = (() => {
       const char = DataStore.getCharacter(charSelect.value);
       const loc = DataStore.getLocation(locSelect.value);
       const story_premise = document.getElementById('enc-premise').value.trim();
+      const selectedEngine = getSelectedEngine();
+      const engineConfig = ENGINE_CONFIG[selectedEngine];
       
       const player_stats = `Stats: Strength ${char.stats.strength}, Intellect ${char.stats.intellect}, Agility ${char.stats.agility}, Charisma ${char.stats.charisma}. Traits: ${char.traits.map(t => t.name).join(', ')}`;
       const location_context = `${loc.name} (${loc.type}). Mood: ${loc.moodDescription}. Danger Level: ${loc.dangerLevel}. Features: ${loc.features.join(', ')}`;
@@ -1831,7 +1916,7 @@ const AIGenerator = (() => {
       // Add loading state
       const loadingDiv = document.createElement('div');
       loadingDiv.className = 'ai-msg ai-msg--ai';
-      loadingDiv.innerHTML = `<div class="ai-msg__label">System</div><div><span class="ai-chat__status" style="display:inline-block; margin-right:8px;"></span> CrewAI is rolling the dice...</div>`;
+      loadingDiv.innerHTML = `<div class="ai-msg__label">System</div><div><span class="ai-chat__status" style="display:inline-block; margin-right:8px;"></span> ${Renderer.escapeHtml(engineConfig.loadingText)}</div>`;
       msgs.appendChild(loadingDiv);
       msgs.scrollTop = msgs.scrollHeight;
 
@@ -1845,7 +1930,8 @@ const AIGenerator = (() => {
             campaign_history: campaignHistory,
             npc_histories: npcHistories,
             action,
-            location_context
+            location_context,
+            engine: selectedEngine
           })
         });
 
@@ -1854,14 +1940,24 @@ const AIGenerator = (() => {
         
         if (data.status === 'success') {
           const result = data.data;
+          const resultEngine = ENGINE_CONFIG[result.engine] ? result.engine : selectedEngine;
+          const resultConfig = ENGINE_CONFIG[resultEngine];
+          syncEncounterEngineUI(resultEngine);
           
           campaignHistory += `\\nGame Master: ${result.gm_narration}`;
           
           // Add GM Narration
           const gmDiv = document.createElement('div');
           gmDiv.className = 'ai-msg ai-msg--ai';
-          gmDiv.innerHTML = `<div class="ai-msg__label">Dungeon Master (CrewAI)</div><div>${Renderer.escapeHtml(result.gm_narration)}</div>`;
+          gmDiv.innerHTML = `<div class="ai-msg__label">${Renderer.escapeHtml(resultConfig.gmLabel)}</div><div>${Renderer.escapeHtml(result.gm_narration)}</div>`;
           msgs.appendChild(gmDiv);
+
+          if (result.workflow_steps && result.workflow_steps.length > 0) {
+            const workflowDiv = document.createElement('div');
+            workflowDiv.className = 'ai-msg ai-msg--ai';
+            workflowDiv.innerHTML = `<div class="ai-msg__label">${Renderer.escapeHtml(resultConfig.workflowLabel)}</div><div>${Renderer.escapeHtml(result.workflow_steps.join(' → '))}</div>`;
+            msgs.appendChild(workflowDiv);
+          }
           
           // Add Sub-Agents (NPC) Dialogues
           if (result.npc_reactions && result.npc_reactions.length > 0) {
@@ -1873,7 +1969,7 @@ const AIGenerator = (() => {
               
               const npcDiv = document.createElement('div');
               npcDiv.className = 'ai-msg ai-msg--ai';
-              npcDiv.innerHTML = `<div class="ai-msg__label">${Renderer.escapeHtml(npc.name)} (Sub-Agent)</div><div><em>${Renderer.escapeHtml(npc.dialogue)}</em></div>`;
+              npcDiv.innerHTML = `<div class="ai-msg__label">${Renderer.escapeHtml(npc.name)} (${Renderer.escapeHtml(resultConfig.npcLabel)})</div><div><em>${Renderer.escapeHtml(npc.dialogue)}</em></div>`;
               msgs.appendChild(npcDiv);
             }
           }
@@ -1889,6 +1985,9 @@ const AIGenerator = (() => {
       }
       msgs.scrollTop = msgs.scrollHeight;
     }
+
+    engineSelect?.addEventListener('change', () => syncEncounterEngineUI());
+    syncEncounterEngineUI();
   }
 })();
 

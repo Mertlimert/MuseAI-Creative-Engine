@@ -4,5 +4,8 @@ fastapi
 uvicorn
 python-dotenv
 langchain-openai
+langchain
+langgraph
+langsmith
 pydantic
 litellm

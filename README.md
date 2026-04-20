@@ -13,7 +13,7 @@
 | 🌍 **The World Hub** | Manage and explore your story universes with genre tags, stats, and visual cards |
 | ⚔️ **Character Forge** | Create characters with stats (Strength, Intellect, Agility, Charisma), backstory, and personality traits |
 | 📜 **Quest Ledger** | Track quests, milestones, and narrative arcs with status management |
-| 🤖 **Lore-Master AI (CrewAI)** | **[NEW]** Active D&D Encounter mode where a CrewAI Game Master runs a dynamic campaign and spawns NPC Sub-Agents. |
+| 🤖 **Lore-Master AI (CrewAI + LangGraph)** | Active D&D Encounter mode with a switchable CrewAI multi-agent flow and a LangGraph step-based workflow. |
 
 ---
 
@@ -29,22 +29,34 @@ python -m http.server 8000
 ```
 Then visit `http://localhost:8000`.
 
-### 2. Backend (CrewAI Engine)
+### 2. Backend (CrewAI + LangGraph Engine)
 Required for the "Lore-Master AI" Active Encounter tab.
 ```bash
 # Navigate to backend
 cd backend
 
 # Setup environment
-# Create .env based on .env.example and add your OPENROUTER_API_KEY
+# Copy .env.example to .env and add your API keys
+# Optional: add LangSmith keys for tracing
 
 # Install dependencies
 pip install -r requirements.txt
 
 # Run API server
-py api.py
+uvicorn api:app --reload
 ```
 The backend runs on `http://localhost:8000`. Ensure you use a different port for the frontend if using a local server!
+
+Supported orchestration modes in the UI:
+- `CrewAI Multi-Agent`
+- `LangGraph Workflow`
+
+Optional LangSmith environment variables:
+```bash
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_API_KEY=your_langsmith_key
+LANGCHAIN_PROJECT=MuseAI-LangGraph
+```
 
 ---
 
@@ -66,7 +78,7 @@ The backend runs on `http://localhost:8000`. Ensure you use a different port for
 
 ## 🏗️ Architecture
 
-The application follows a **modular architecture** with clear separation of concerns, connecting a robust Vanilla JS frontend to a Python-based CrewAI microservice backend.
+The application follows a **modular architecture** with clear separation of concerns, connecting a robust Vanilla JS frontend to a Python-based AI backend that supports both CrewAI and LangGraph.
 
 ### Frontend Domain (Vanilla JS)
 ```text
@@ -78,10 +90,16 @@ app.js
 └── ModalManager   → Centralized modal open/close/reset
 ```
 
-### Backend Domain (CrewAI Two-Pass Engine)
-The Lore-Master AI replaces our mock responses with a fully dynamic D&D Engine using a two-pass architecture:
-1. **Pass 1 (Game Master Routing):** A CrewAI Game Master evaluates the player's action, checks stats (strength, intellect, etc.) from Homework 2 databases, and generates a structured Pydantic layout of the story.
-2. **Pass 2 (Dynamic NPC Sub-Agents):** If the GM determines an NPC should react, a dynamically instantiated CrewAI agent is spawned on-the-fly, given a strict persona, and converses distinctly from the global narrator.
+### Backend Domain (Hybrid Encounter Engine)
+The Lore-Master AI now supports two orchestration modes behind the same API contract:
+1. **CrewAI Mode:** A Game Master agent evaluates the player's action, generates a structured encounter response, and spawns dynamic NPC sub-agents when needed.
+2. **LangGraph Mode:** A stateful graph prepares context, runs a Game Master node, conditionally branches into NPC dialogue nodes, and assembles the final response.
+
+Both modes return:
+- `gm_narration`
+- `npc_reactions`
+- `engine`
+- `workflow_steps`
 
 ---
 
@@ -105,6 +123,8 @@ MuseAI/
 ## 📋 AI Agent Planning Document
 
 The detailed AI integration plan is available in [Planning_Document.md](Planning_Document.md).
+
+The LangGraph assignment write-up draft is available in [LangGraph_Report.md](LangGraph_Report.md).
 
 **Key Concept:** The **LORE-MASTER ENGINE** is a Narrative Consultant & Consistency Evaluator that:
 - Analyzes character traits against proposed story actions

@@ -209,8 +209,8 @@
       <div class="ai-page">
         <div class="ai-hero">
           <div class="ai-hero__icon">🎲</div>
-          <h1>Active Encounter (Crew AI)</h1>
-          <p>Immerse yourself in a dynamic D&D encounter powered by CrewAI. A Game Master manages the world while NPCs react naturally to your actions.</p>
+          <h1>Active Encounter (CrewAI + LangGraph)</h1>
+          <p>Run the same live D&amp;D encounter with either CrewAI multi-agent orchestration or a LangGraph workflow, while keeping both systems active in the same project.</p>
         </div>
 
         <!-- Setup Form -->
@@ -234,15 +234,23 @@
             <label for="enc-premise">Story Premise (What is the campaign about?)</label>
             <input type="text" class="form-input" id="enc-premise" placeholder="e.g. I am entering a dark tavern looking for a quest." required>
           </div>
+          <div class="form-group">
+            <label for="enc-engine">AI Orchestration Engine</label>
+            <select class="form-select" id="enc-engine">
+              <option value="crewai">CrewAI Multi-Agent</option>
+              <option value="langgraph">LangGraph Workflow</option>
+            </select>
+            <p class="encounter-hint" id="enc-engine-hint">CrewAI uses a Game Master agent and dynamic NPC sub-agents.</p>
+          </div>
           <button class="btn btn--primary w-full" id="btn-start-encounter">Start Campaign</button>
         </div>
 
-        <!-- AI Chat Interface (Crew AI Engine) -->
+        <!-- AI Chat Interface -->
         <div class="ai-chat hidden" id="ai-chat">
           <div class="ai-chat__header justify-between">
             <div class="flex items-center gap-sm">
               <div class="ai-chat__status"></div>
-              <span>CrewAI Engine — Live</span>
+              <span id="ai-engine-status">CrewAI Engine — Live</span>
             </div>
             <button class="btn btn--sm btn--outline" id="btn-end-encounter">End Encounter</button>
           </div>
@@ -257,7 +265,8 @@
 
         <!-- Architecture Diagram -->
         <div class="ai-architecture mt-2xl">
-          <h3>⚙️ CrewAI Flow Architecture</h3>
+          <h3 id="arch-title">⚙️ CrewAI Flow Architecture</h3>
+          <p class="encounter-hint" id="arch-description">CrewAI routes the encounter through a Game Master agent, then dynamically spawns NPC sub-agents only when a character should react.</p>
           <div class="arch-flow" id="arch-flow">
             <div class="arch-node">
               <div class="arch-node__icon">⌨️</div>
@@ -266,15 +275,21 @@
             </div>
             <div class="arch-arrow">→</div>
             <div class="arch-node">
-              <div class="arch-node__icon">🎲</div>
-              <div class="arch-node__label">Dungeon Master</div>
-              <div class="arch-node__sub">CrewAI Agent #1</div>
+              <div class="arch-node__icon" id="arch-node-2-icon">🎲</div>
+              <div class="arch-node__label" id="arch-node-2-label">Dungeon Master</div>
+              <div class="arch-node__sub" id="arch-node-2-sub">CrewAI Agent #1</div>
             </div>
             <div class="arch-arrow">→</div>
             <div class="arch-node">
-              <div class="arch-node__icon">👤</div>
-              <div class="arch-node__label">NPC Actor</div>
-              <div class="arch-node__sub">CrewAI Agent #2</div>
+              <div class="arch-node__icon" id="arch-node-3-icon">👤</div>
+              <div class="arch-node__label" id="arch-node-3-label">NPC Actor</div>
+              <div class="arch-node__sub" id="arch-node-3-sub">Dynamic Sub-Agent</div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-node">
+              <div class="arch-node__icon" id="arch-node-4-icon">📦</div>
+              <div class="arch-node__label" id="arch-node-4-label">Final Encounter</div>
+              <div class="arch-node__sub" id="arch-node-4-sub">Narration + NPC replies</div>
             </div>
           </div>
         </div>

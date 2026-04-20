@@ -1,32 +1,9 @@
-from typing import List, Optional
-from pydantic import BaseModel, Field
-from crewai import Agent, Crew, Process, Task, LLM
+from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
-import os
-from dotenv import load_dotenv
+from llm_factory import create_crewai_llm
+from schemas import GMResponse, NPCRequest
 
-load_dotenv()
-
-# --- LLM Configuration for OpenRouter ---
-my_llm = LLM(
-    model=os.getenv("OPENAI_MODEL_NAME", "openrouter/google/gemini-2.0-flash-lite:free"),
-    base_url=os.getenv("OPENAI_API_BASE", "https://openrouter.ai/api/v1"),
-    api_key=os.getenv("OPENAI_API_KEY"),
-    extra_headers={
-        "HTTP-Referer": "https://github.com/Mertlimert/MuseAI-Creative-Engine",
-        "X-Title": "MuseAI Creative Engine"
-    }
-)
-
-# --- Pydantic Models for Structured Output ---
-class NPCRequest(BaseModel):
-    name: str = Field(description="The name of the NPC.")
-    persona: str = Field(description="The NPC's personality and backstory.")
-    instruction_for_npc: str = Field(description="Specific instructions for what the NPC should react to or say.")
-
-class GMResponse(BaseModel):
-    narration: str = Field(description="The Game Master's narration of the environment, action outcomes, and events.")
-    npcs_to_activate: List[NPCRequest] = Field(description="List of NPCs that need to speak or react in this turn.", default=[])
+my_llm = create_crewai_llm()
 
 
 # --- Game Master Crew ---
@@ -106,6 +83,10 @@ def run_campaign_step(player_stats: str, story_premise: str, campaign_history: s
         'action': action,
     }
     
+    workflow_steps = [
+        "CrewAI Game Master crew evaluated the action and produced structured narration."
+    ]
+
     # Pass 1: The Game Master decides what happens
     gm_crew = DnDGameMasterCrew().crew()
     gm_result = gm_crew.kickoff(inputs=inputs)
@@ -115,7 +96,9 @@ def run_campaign_step(player_stats: str, story_premise: str, campaign_history: s
         # Fallback if the LLM failed to format perfectly
         return {
             "gm_narration": gm_result.raw if hasattr(gm_result, "raw") else "The GM processed your action.",
-            "npc_reactions": []
+            "npc_reactions": [],
+            "engine": "crewai",
+            "workflow_steps": workflow_steps + ["CrewAI fallback response returned because structured parsing was unavailable."]
         }
         
     structured_gm: GMResponse = gm_result.pydantic
@@ -136,8 +119,15 @@ def run_campaign_step(player_stats: str, story_premise: str, campaign_history: s
             "name": npc_req.name,
             "dialogue": npc_reply
         })
+
+    if final_npc_dialogues:
+        workflow_steps.append("CrewAI dynamically spawned NPC sub-agents for in-character replies.")
+
+    workflow_steps.append("CrewAI assembled the final encounter payload for the frontend.")
         
     return {
         "gm_narration": structured_gm.narration,
-        "npc_reactions": final_npc_dialogues
+        "npc_reactions": final_npc_dialogues,
+        "engine": "crewai",
+        "workflow_steps": workflow_steps
     }

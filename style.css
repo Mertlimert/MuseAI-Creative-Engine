@@ -1374,6 +1374,13 @@ textarea.char-backstory:focus {
   padding-bottom: var(--space-sm);
 }
 
+.encounter-hint {
+  margin-top: var(--space-sm);
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
 /* ── AI Architecture Diagram ── */
 .ai-architecture {
   background: var(--color-bg-card);

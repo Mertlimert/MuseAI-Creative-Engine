@@ -1,0 +1,42 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Python environments
+.venv/
+venv/
+env/
+ENV/
+backend/.venv/
+backend/venv/
+backend/env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs and local server output
+*.log
+backend-server*.log
+frontend-server*.log
+
+# Node and package caches
+node_modules/
+.npm/
+.pnpm-store/
+
+# Local screenshots and generated report source assets
+screenshots/
+assets/report/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

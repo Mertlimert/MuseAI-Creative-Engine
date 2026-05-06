@@ -60,7 +60,7 @@
     <div class="sidebar__footer">
       <div class="sidebar__avatar"></div>
       <div>
-        <div class="sidebar__user-name">Bedirhan</div>
+        <div class="sidebar__user-name">Mert</div>
         <div class="sidebar__user-role">Story Architect</div>
       </div>
     </div>
@@ -249,6 +249,18 @@
               <option value="langgraph">LangGraph Workflow</option>
             </select>
             <p class="encounter-hint" id="enc-engine-hint">CrewAI uses a Game Master agent and dynamic NPC sub-agents.</p>
+          </div>
+          <div class="mcp-demo-panel" id="mcp-demo-panel">
+            <div class="mcp-demo-panel__header">
+              <div>
+                <h3>MCP Context Demo</h3>
+                <p>Shows how the backend calls a MuseAI MCP tool before LangGraph uses project context.</p>
+              </div>
+              <button class="btn btn--sm btn--outline" id="btn-mcp-demo" type="button">Run MCP Demo</button>
+            </div>
+            <div class="mcp-demo-panel__output" id="mcp-demo-output">
+              Select a character and location, then run the MCP demo.
+            </div>
           </div>
           <button class="btn btn--primary w-full" id="btn-start-encounter">Start Campaign</button>
         </div>
@@ -609,6 +621,8 @@
   </div>
 </div>
 
+<!-- Optional: point the UI at a different API host/port (default is set in app.js). -->
+<!-- <script>window.MUSEAI_API_BASE = 'http://127.0.0.1:8000';</script> -->
 <script src="app.js"></script>
 </body>
 </html>

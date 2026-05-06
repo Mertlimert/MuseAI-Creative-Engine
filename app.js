@@ -13,6 +13,13 @@
 
 'use strict';
 
+/**
+ * Lore-Master backend (FastAPI). Default matches `uvicorn` on 127.0.0.1:8000.
+ * Override before loading app.js if needed: window.MUSEAI_API_BASE = 'http://127.0.0.1:8000';
+ */
+const MUSEAI_API_BASE =
+  (typeof window !== 'undefined' && window.MUSEAI_API_BASE) || 'http://127.0.0.1:8000';
+
 /* ============================================================
    1. DATA STORE — Single Source of Truth
    ============================================================ */
@@ -91,6 +98,37 @@ const DataStore = (() => {
         stats: { strength: 35, intellect: 72, agility: 94, charisma: 80 },
         image: 'assets/images/characters/rogue.png',
       },
+      {
+        id: 'char-tr-1',
+        name: 'Derya Demir',
+        charClass: 'Glif Muhendisi',
+        roleType: 'Protagonist',
+        race: 'Insan',
+        level: 27,
+        backstory: 'Kadikoyde buyumus, eski Istanbul sarniclarindaki muhurlu gecitleri inceleyerek yetismis pratik bir buyu muhendisidir. Derya, karmasik glifleri sakin bir sekilde okur ve tehlikeyi buyutmeden cozmeye calisir.',
+        traits: [
+          { name: 'Bilge', type: 'wise' },
+          { name: 'Cesur', type: 'brave' },
+          { name: 'Kurnaz', type: 'cunning' },
+        ],
+        stats: { strength: 34, intellect: 91, agility: 58, charisma: 69 },
+        image: 'assets/images/characters/wizard.png',
+      },
+      {
+        id: 'char-tr-2',
+        name: 'Baran Koroglu',
+        charClass: 'Eser Avcisi',
+        roleType: 'Side Character',
+        race: 'Insan',
+        level: 21,
+        backstory: 'Anadoludaki eski yollar, kayip haritalar ve karaborsa eser soylentileri konusunda taninan bir saha rehberidir. Baran hizli karar verir, ama eski borclari bazen onu riskli pazarliklara surukler.',
+        traits: [
+          { name: 'Cesur', type: 'brave' },
+          { name: 'Kurnaz', type: 'cunning' },
+        ],
+        stats: { strength: 62, intellect: 67, agility: 74, charisma: 55 },
+        image: 'assets/images/characters/warrior.png',
+      },
     ],
 
     quests: [
@@ -161,7 +199,25 @@ const DataStore = (() => {
     } catch {
       _data = structuredClone(DEFAULT_DATA);
     }
+    mergeDefaultSeeds();
     return _data;
+  }
+
+  function mergeDefaultSeeds() {
+    if (!_data) return;
+    const seedGroups = ['universes', 'characters', 'quests'];
+    let changed = false;
+    for (const group of seedGroups) {
+      if (!Array.isArray(_data[group])) _data[group] = [];
+      const existingIds = new Set(_data[group].map(item => item.id));
+      for (const seed of DEFAULT_DATA[group] || []) {
+        if (!existingIds.has(seed.id)) {
+          _data[group].push(structuredClone(seed));
+          changed = true;
+        }
+      }
+    }
+    if (changed) save();
   }
 
   /** Persist current data to localStorage */
@@ -542,6 +598,14 @@ const Language = (() => {
       crewai_gm_label: 'Dungeon Master (CrewAI)',
       crewai_npc_label: 'Sub-Agent',
       crewai_workflow_label: 'CrewAI Steps',
+      mcp_context_label: 'MCP Context',
+      mcp_mechanics_label: 'MCP Mechanics',
+      combat_started_label: 'Combat Started',
+      combat_round_label: 'Combat Round',
+      dice_roll_label: 'Dice Roll',
+      stat_used_label: 'Stat Used',
+      hp_label: 'HP',
+      outcome_label: 'Outcome',
       crewai_hint: 'CrewAI uses a Game Master agent and dynamic NPC sub-agents.',
       crewai_arch_title: 'CrewAI Flow Architecture',
       crewai_arch_description: 'CrewAI routes the encounter through a Game Master agent, then dynamically spawns NPC sub-agents only when a character should react.',
@@ -765,13 +829,21 @@ const Language = (() => {
       crewai_status: 'CrewAI Motoru - Canli',
       crewai_start_message: 'Kampanya CrewAI coklu ajan orkestrasyonu ile basladi. Ilk ne yapiyorsun?',
       crewai_loading: 'CrewAI zarlarini atiyor...',
-      crewai_gm_label: 'Zindan Ustasi (CrewAI)',
+      crewai_gm_label: 'Oyun Ustasi (CrewAI)',
       crewai_npc_label: 'Alt Ajan',
       crewai_workflow_label: 'CrewAI Adimlari',
+      mcp_context_label: 'MCP Baglami',
+      mcp_mechanics_label: 'MCP Mekanikleri',
+      combat_started_label: 'Savas Basladi',
+      combat_round_label: 'Savas Turu',
+      dice_roll_label: 'Zar Sonucu',
+      stat_used_label: 'Kullanilan Stat',
+      hp_label: 'Can',
+      outcome_label: 'Sonuc',
       crewai_hint: 'CrewAI bir Oyun Yoneticisi ajani ve dinamik NPC alt ajanlari kullanir.',
       crewai_arch_title: 'CrewAI Akis Mimarisi',
       crewai_arch_description: 'CrewAI karsilasmayi once Oyun Yoneticisi ajanina yonlendirir, sonra yalnizca gerektiginde NPC alt ajanlari olusturur.',
-      crewai_node_2_label: 'Zindan Ustasi',
+      crewai_node_2_label: 'Oyun Ustasi',
       crewai_node_2_sub: 'CrewAI Ajan #1',
       crewai_node_3_label: 'NPC Oyuncusu',
       crewai_node_3_sub: 'Dinamik Alt Ajan',
@@ -780,7 +852,7 @@ const Language = (() => {
       langgraph_status: 'LangGraph Is Akisi - Canli',
       langgraph_start_message: 'Kampanya LangGraph is akisi orkestrasyonu ile basladi. Ilk ne yapiyorsun?',
       langgraph_loading: 'LangGraph karsilasma dugumlerinde ilerliyor...',
-      langgraph_gm_label: 'Zindan Ustasi (LangGraph)',
+      langgraph_gm_label: 'Oyun Ustasi (LangGraph)',
       langgraph_npc_label: 'Graf Dugumu',
       langgraph_workflow_label: 'LangGraph Adimlari',
       langgraph_hint: 'LangGraph durum tutan dugumler, kosullu kenarlar ve ortak bir karsilasma durumu kullanir.',
@@ -1042,6 +1114,21 @@ const Language = (() => {
     return t(map[value] || value);
   }
 
+  function translateNpcName(name) {
+    if (currentLanguage !== 'tr' || !name) return name;
+    const exactMap = {
+      Guard: 'Muhafiz',
+      'City Guard': 'Sehir Muhafizi',
+      Captain: 'Kaptan',
+      Warden: 'Gardiyan',
+      Envoy: 'Elci',
+      Noble: 'Soylu',
+      Merchant: 'Tuccar',
+      Villager: 'Koylu'
+    };
+    return exactMap[name] || name;
+  }
+
   function init() {
     currentLanguage = detectInitialLanguage();
     const switcher = document.getElementById('language-switcher');
@@ -1079,6 +1166,7 @@ const Language = (() => {
     translateQuestStatus,
     translateLocationType,
     translateMood,
+    translateNpcName,
     localizeRelativeTime
   };
 })();
@@ -2282,6 +2370,9 @@ const AIGenerator = (() => {
     { id: 'loc-1', name: 'Silverpeak Citadel', type: 'city', description: 'A towering fortress city built into the side of a mountain, where silver spires pierce the clouds and ancient magic wards protect its inhabitants.', mood: 'mysterious', features: ['Noble Quarter', 'Guard Towers', 'Underground Tunnels'], dangerLevel: 3, icon: '🏰' },
     { id: 'loc-2', name: 'The Sunken Crypt', type: 'dungeon', description: 'Deep beneath the marshlands, this submerged crypt holds the remains of a forgotten king. The air is thick with dread and the walls weep with moisture.', mood: 'eerie', features: ['Trap Corridor', 'Boss Chamber', 'Hidden Passage'], dangerLevel: 8, icon: '⚔️' },
     { id: 'loc-3', name: 'Whisperwood', type: 'wilderness', description: 'An ancient forest where the trees seem to speak in hushed tones. Glowing mushrooms light hidden paths, and fey creatures watch from the shadows.', mood: 'mysterious', features: ['Ancient Ruins', 'Herb Garden', 'Ritual Circle'], dangerLevel: 5, icon: '🌲' },
+    { id: 'loc-tr-1', name: 'Yerebatan Arsivi', type: 'dungeon', description: 'Eski Istanbulun altinda sakli, muhurlu raflar ve sarnic gecitleriyle korunan gizli bir arsiv. Kayip eser kayitlari burada tutulur, ama glifler dikkatsizleri hemen fark eder.', mood: 'mysterious', features: ['Sarnic Gecitleri', 'Muhurlu Raflar', 'Kayip Harita Odasi'], dangerLevel: 6, icon: '' },
+    { id: 'loc-tr-2', name: 'Galata Gozetleme Kulesi', type: 'landmark', description: 'Kuryeler, muhafizlar ve gizli buyuculer tarafindan kullanilan yuksek bir gozetleme noktasi. Sehrin siyasi hareketleri buradan sessizce izlenir.', mood: 'bustling', features: ['Ruzgar Terasi', 'Gizli Rasathane', 'Kurye Hatti'], dangerLevel: 4, icon: '' },
+    { id: 'loc-tr-3', name: 'Kapalicarsi Golge Pazari', type: 'building', description: 'Kapalicarsinin altinda, eserlerin, borclarin ve tehlikeli bilgilerin sessizce el degistirdigi gizli bir pazar. Her tezgahin arkasinda bir pazarlik ve bir risk vardir.', mood: 'dangerous', features: ['Gizli Tezgahlar', 'Sifreli Kapilar', 'Emanet Sandiklari'], dangerLevel: 7, icon: '' },
   ];
 
   // Inject locations into DataStore on first load
@@ -2291,6 +2382,16 @@ const AIGenerator = (() => {
     if (!data.locations) {
       data.locations = structuredClone(LOCATION_DEFAULTS);
       DataStore.save();
+    } else {
+      const existingIds = new Set(data.locations.map(loc => loc.id));
+      let changed = false;
+      for (const seed of LOCATION_DEFAULTS) {
+        if (!existingIds.has(seed.id)) {
+          data.locations.push(structuredClone(seed));
+          changed = true;
+        }
+      }
+      if (changed) DataStore.save();
     }
     return data;
   };
@@ -2458,7 +2559,7 @@ const AIGenerator = (() => {
     _lastGenChar = null;
   }
 
-  function generateCharacterUI() {
+  async function generateCharacterUI() {
     const genre = document.getElementById('ai-char-genre')?.value || 'fantasy';
     const role = document.getElementById('ai-char-role')?.value || 'NPC';
     const theme = document.getElementById('ai-char-theme')?.value || 'balanced';
@@ -2469,15 +2570,30 @@ const AIGenerator = (() => {
 
     configEl?.classList.add('hidden');
     outputEl?.classList.remove('hidden');
-    resultEl.innerHTML = `<div class="ai-gen-loading"><div class="ai-gen-spinner"></div>${Language.t('generating_character')}</div>`;
+    resultEl.innerHTML = `<div class="ai-gen-loading"><div class="ai-gen-spinner"></div>${Language.t('generating_character')} (MCP)</div>`;
 
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${MUSEAI_API_BASE}/api/mcp/generate-character`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          genre,
+          role_type: role,
+          theme,
+          language: Language.getLanguage()
+        })
+      });
+      const data = await response.json();
+      if (data.status !== 'success' || !data.data?.result) throw new Error(data.message || 'MCP character generation failed');
+      _lastGenChar = data.data.result;
+      resultEl.innerHTML = AIGenerator.renderCharacterResult(_lastGenChar);
+    } catch (err) {
       _lastGenChar = AIGenerator.generateCharacter(genre, role, theme);
       resultEl.innerHTML = AIGenerator.renderCharacterResult(_lastGenChar);
-    }, 1200);
+    }
   }
 
-  function generateLocationUI() {
+  async function generateLocationUI() {
     const genre = document.getElementById('ai-loc-genre')?.value || 'fantasy';
     const type = document.getElementById('ai-loc-type')?.value || 'city';
     const mood = document.getElementById('ai-loc-mood')?.value || 'mysterious';
@@ -2488,12 +2604,27 @@ const AIGenerator = (() => {
 
     configEl?.classList.add('hidden');
     outputEl?.classList.remove('hidden');
-    resultEl.innerHTML = `<div class="ai-gen-loading"><div class="ai-gen-spinner"></div>${Language.t('generating_location')}</div>`;
+    resultEl.innerHTML = `<div class="ai-gen-loading"><div class="ai-gen-spinner"></div>${Language.t('generating_location')} (MCP)</div>`;
 
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${MUSEAI_API_BASE}/api/mcp/generate-location`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          genre,
+          location_type: type,
+          mood,
+          language: Language.getLanguage()
+        })
+      });
+      const data = await response.json();
+      if (data.status !== 'success' || !data.data?.result) throw new Error(data.message || 'MCP location generation failed');
+      _lastGenLoc = data.data.result;
+      resultEl.innerHTML = AIGenerator.renderLocationResult(_lastGenLoc);
+    } catch (err) {
       _lastGenLoc = AIGenerator.generateLocation(genre, type, mood);
       resultEl.innerHTML = AIGenerator.renderLocationResult(_lastGenLoc);
-    }, 1200);
+    }
   }
   function bindCrewAI() {
     const btnStart = document.getElementById('btn-start-encounter');
@@ -2503,6 +2634,8 @@ const AIGenerator = (() => {
     const locSelect = document.getElementById('enc-location');
     const engineSelect = document.getElementById('enc-engine');
     const engineHint = document.getElementById('enc-engine-hint');
+    const mcpDemoBtn = document.getElementById('btn-mcp-demo');
+    const mcpDemoOutput = document.getElementById('mcp-demo-output');
     const engineStatus = document.getElementById('ai-engine-status');
     const archTitle = document.getElementById('arch-title');
     const archDescription = document.getElementById('arch-description');
@@ -2604,6 +2737,7 @@ const AIGenerator = (() => {
     // State logic for Campaign
     let campaignHistory = "";
     let npcHistories = {};
+    let combatState = null;
 
     const getSelectedEngine = () => {
       const value = engineSelect?.value || 'crewai';
@@ -2625,6 +2759,310 @@ const AIGenerator = (() => {
       if (archNode4Icon) archNode4Icon.textContent = cfg.node4Icon;
       if (archNode4Label) archNode4Label.textContent = cfg.node4Label;
       if (archNode4Sub) archNode4Sub.textContent = cfg.node4Sub;
+    };
+
+    const getSelectedEncounterContext = () => {
+      const char = DataStore.getCharacter(charSelect?.value);
+      const loc = DataStore.getLocation(locSelect?.value);
+      const storyPremise = document.getElementById('enc-premise')?.value.trim() || '';
+      return { char, loc, storyPremise };
+    };
+
+    const renderMcpContextResult = (payload) => {
+      const result = payload?.result || {};
+      const character = result.character || {};
+      const location = result.location || {};
+      const loreHints = result.lore_hints || [];
+      const process = payload?.process || [];
+      const transport = payload?.transport || 'mcp-stdio';
+      const warning = payload?.warning ? `\nWarning: ${payload.warning}` : '';
+
+      return [
+        `Tool called: ${payload?.tool_called || 'get_encounter_context'}`,
+        `Transport: ${transport}`,
+        `Input: ${payload?.input?.character_name || character.name || '-'} + ${payload?.input?.location_name || location.name || '-'}`,
+        `Character result: ${character.name || '-'} | ${character.class || '-'} | INT ${character.stats?.intellect ?? '-'}`,
+        `Location result: ${location.name || '-'} | danger ${location.danger_level ?? '-'} | ${Array.isArray(location.features) ? location.features.join(', ') : '-'}`,
+        `Process: ${process.join(' -> ') || 'MCP server returned context.'}`,
+        `Lore hints: ${loreHints.map(item => item.name).join(', ') || '-'}`,
+        `Used by: ${payload?.used_by || 'LangGraph prepare_context node'}${warning}`
+      ].join('\n');
+    };
+
+    const renderMcpContextSummary = (payload) => {
+      const result = payload?.result || {};
+      const character = result.character || {};
+      const location = result.location || {};
+      const transport = payload?.transport || 'mcp-stdio';
+      return `get_encounter_context via ${transport}: ${character.name || '-'} + ${location.name || '-'} context added to LangGraph state.`;
+    };
+
+    const normalizeActionText = (value) => (value || '')
+      .toLowerCase()
+      .replace(/\u0131/g, 'i')
+      .replace(/\u011f/g, 'g')
+      .replace(/\u00fc/g, 'u')
+      .replace(/\u015f/g, 's')
+      .replace(/\u00f6/g, 'o')
+      .replace(/\u00e7/g, 'c')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+    const actionHasAny = (action, keywords) => {
+      const text = normalizeActionText(action);
+      return keywords.some(keyword => text.includes(keyword));
+    };
+
+    const detectCombatIntent = (action) => actionHasAny(action, [
+      'saldir', 'vur', 'kilic', 'balta', 'yumruk', 'tekme', 'savasa gir', 'savas baslat',
+      'attack', 'strike', 'hit', 'slash', 'fight', 'draw weapon'
+    ]);
+
+    const detectCombatEndIntent = (action) => actionHasAny(action, [
+      'geri cekil', 'teslim', 'savasi bitir', 'kavgayi bitir', 'savas bitsin',
+      'retreat', 'surrender', 'end combat'
+    ]);
+
+    const detectDiceIntent = (action) => actionHasAny(action, [
+      'zar', 'ikna', 'korkut', 'konus', 'pazarlik', 'saklan', 'kac', 'incele', 'coz', 'kilit',
+      'roll', 'check', 'persuade', 'intimidate', 'hide', 'inspect', 'unlock'
+    ]);
+
+    const inferStatForAction = (action) => {
+      if (actionHasAny(action, ['buyu', 'glif', 'tilsim', 'analiz', 'incele', 'coz', 'spell', 'magic', 'glyph', 'inspect'])) return 'intellect';
+      if (actionHasAny(action, ['kac', 'saklan', 'siyril', 'zipla', 'dodge', 'dash', 'hide', 'sneak'])) return 'agility';
+      if (actionHasAny(action, ['ikna', 'korkut', 'konus', 'pazarlik', 'persuade', 'intimidate', 'talk', 'bluff'])) return 'charisma';
+      return 'strength';
+    };
+
+    const inferDifficultyClass = (action, loc) => {
+      const danger = Number(loc?.dangerLevel || loc?.danger_level || 3);
+      let dc = 10 + Math.min(6, Math.max(0, Math.floor(danger / 2)));
+      if (actionHasAny(action, ['zor', 'riskli', 'kilit', 'muhur', 'ward', 'hard', 'dangerous'])) dc += 2;
+      return Math.max(8, Math.min(18, dc));
+    };
+
+    const getPlayerStatsPayload = (char) => ({
+      strength: Number(char?.stats?.strength ?? 50),
+      intellect: Number(char?.stats?.intellect ?? 50),
+      agility: Number(char?.stats?.agility ?? 50),
+      charisma: Number(char?.stats?.charisma ?? 50),
+      level: Number(char?.level ?? 1)
+    });
+
+    const inferEnemyKind = (action, loc) => {
+      const text = normalizeActionText(`${action} ${loc?.name || ''} ${loc?.type || ''}`);
+      if (text.includes('golem') || text.includes('glif') || text.includes('glyph') || text.includes('muhur')) return 'golem';
+      if (text.includes('pazar') || text.includes('market') || text.includes('haydut') || text.includes('bandit')) return 'bandit';
+      return 'guard';
+    };
+
+    const inferAllyKind = (action) => {
+      if (!actionHasAny(action, ['yardim', 'dost', 'muttefik', 'ally', 'backup'])) return '';
+      return Language.getLanguage() === 'tr' ? 'Baran Koroglu' : 'Field Ally';
+    };
+
+    const hpPercent = (hp, maxHp) => {
+      const safeMax = Math.max(1, Number(maxHp || 1));
+      return Math.max(0, Math.min(100, Math.round((Number(hp || 0) / safeMax) * 100)));
+    };
+
+    const renderHpLine = (label, actor) => {
+      if (!actor) return '';
+      const hp = Number(actor.hp ?? 0);
+      const maxHp = Number(actor.max_hp ?? actor.maxHp ?? 1);
+      return `
+        <div class="combat-hp">
+          <div class="combat-hp__meta">
+            <span>${Renderer.escapeHtml(label)}</span>
+            <strong>${Renderer.escapeHtml(Language.t('hp_label'))}: ${hp}/${maxHp}</strong>
+          </div>
+          <div class="combat-hp__bar"><span style="width:${hpPercent(hp, maxHp)}%"></span></div>
+        </div>
+      `;
+    };
+
+    const renderRollLine = (roll) => {
+      if (!roll) return '';
+      const outcome = roll.outcome || '-';
+      const total = Number(roll.total ?? 0);
+      const natural = Number(roll.natural_roll ?? 0);
+      const modifier = Number(roll.modifier ?? 0);
+      const dc = Number(roll.dc ?? 0);
+      return `
+        <div class="combat-roll combat-roll--${Renderer.escapeHtml(outcome)}">
+          <span>${Renderer.escapeHtml(Language.t('dice_roll_label'))}</span>
+          <strong>d20=${natural} ${modifier >= 0 ? '+' : ''}${modifier} = ${total}</strong>
+          <em>DC ${dc} | ${Renderer.escapeHtml(outcome.replaceAll('_', ' '))}</em>
+        </div>
+      `;
+    };
+
+    const buildMechanicsHistoryEntry = (payload) => {
+      const tool = payload?.tool_called || 'mcp_tool';
+      const transport = payload?.transport || 'mcp-stdio';
+      const result = payload?.result || {};
+      const state = result.combat_state;
+      const last = state?.last_round;
+      const roll = result.initiative || (payload?.tool_called === 'roll_check' ? result : result.result) || last?.player_check;
+      const player = state?.player;
+      const enemy = state?.enemies?.[0];
+      const pieces = [`${tool} via ${transport}`];
+      if (roll) pieces.push(`roll d20=${roll.natural_roll}, total=${roll.total}, dc=${roll.dc}, outcome=${roll.outcome}`);
+      if (last) pieces.push(`stat=${last.stat_used}, player_damage=${last.player_damage}`);
+      if (player && enemy) pieces.push(`HP ${player.name} ${player.hp}/${player.max_hp}, ${enemy.name} ${enemy.hp}/${enemy.max_hp}`);
+      if (result.summary) pieces.push(`summary=${result.summary}`);
+      return pieces.join(' | ');
+    };
+
+    const renderMechanicsCard = (payload, titleOverride = '') => {
+      const result = payload?.result || {};
+      const state = result.combat_state;
+      const last = state?.last_round;
+      const player = state?.player;
+      const enemy = state?.enemies?.[0];
+      const ally = state?.allies?.[0];
+      const roll = result.initiative || (payload?.tool_called === 'roll_check' ? result : result.result) || last?.player_check;
+      const title = titleOverride || (
+        payload?.tool_called === 'start_combat'
+          ? Language.t('combat_started_label')
+          : payload?.tool_called === 'roll_check'
+            ? Language.t('dice_roll_label')
+            : Language.t('combat_round_label')
+      );
+      const logs = last?.log || state?.log?.slice(-3) || [];
+      return `
+        <div class="combat-card">
+          <div class="combat-card__top">
+            <div>
+              <div class="combat-card__eyebrow">${Renderer.escapeHtml(Language.t('mcp_mechanics_label'))}</div>
+              <h4>${Renderer.escapeHtml(title)}</h4>
+            </div>
+            <span>${Renderer.escapeHtml(payload?.tool_called || 'mcp_tool')} / ${Renderer.escapeHtml(payload?.transport || 'mcp-stdio')}</span>
+          </div>
+          ${roll ? renderRollLine(roll) : ''}
+          ${last?.stat_used ? `<div class="combat-stat">${Renderer.escapeHtml(Language.t('stat_used_label'))}: <strong>${Renderer.escapeHtml(last.stat_used)}</strong></div>` : ''}
+          ${player && enemy ? `
+            <div class="combat-grid">
+              ${renderHpLine(player.name || 'Player', player)}
+              ${renderHpLine(enemy.name || 'Enemy', enemy)}
+              ${ally ? renderHpLine(ally.name || 'Ally', ally) : ''}
+            </div>
+          ` : ''}
+          ${logs.length ? `<ul class="combat-log">${logs.map(item => `<li>${Renderer.escapeHtml(item)}</li>`).join('')}</ul>` : ''}
+          ${result.summary ? `<div class="combat-summary">${Renderer.escapeHtml(result.summary)}</div>` : ''}
+        </div>
+      `;
+    };
+
+    const appendMechanicsCard = (payload, beforeNode = null, titleOverride = '') => {
+      const msgs = document.getElementById('ai-messages');
+      const div = document.createElement('div');
+      div.className = 'ai-msg ai-msg--ai ai-msg--mechanics';
+      div.innerHTML = renderMechanicsCard(payload, titleOverride);
+      if (beforeNode && msgs.contains(beforeNode)) {
+        msgs.insertBefore(div, beforeNode);
+      } else {
+        msgs.appendChild(div);
+      }
+      msgs.scrollTop = msgs.scrollHeight;
+    };
+
+    const callMcpMechanics = async (path, body) => {
+      const response = await fetch(`${MUSEAI_API_BASE}${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await response.json();
+      if (data.status !== 'success') throw new Error(data.message || 'MCP mechanics call failed');
+      return data.data;
+    };
+
+    const resolveMechanicsForAction = async (action, char, loc, beforeNode = null) => {
+      const entries = [];
+      const language = Language.getLanguage();
+      const playerStats = getPlayerStatsPayload(char);
+
+      if (combatState && detectCombatEndIntent(action)) {
+        const payload = await callMcpMechanics('/api/mcp/combat/end', {
+          combat_state: combatState,
+          reason: 'player_request',
+          language
+        });
+        combatState = null;
+        appendMechanicsCard(payload, beforeNode);
+        entries.push(buildMechanicsHistoryEntry(payload));
+        return entries;
+      }
+
+      if (!combatState && detectCombatIntent(action)) {
+        const startPayload = await callMcpMechanics('/api/mcp/combat/start', {
+          player_name: char.name,
+          player_stats: playerStats,
+          enemy_kind: inferEnemyKind(action, loc),
+          ally_kind: inferAllyKind(action),
+          location_name: loc.name,
+          language
+        });
+        combatState = startPayload?.result?.combat_state || null;
+        appendMechanicsCard(startPayload, beforeNode, Language.t('combat_started_label'));
+        entries.push(buildMechanicsHistoryEntry(startPayload));
+      }
+
+      if (combatState) {
+        const roundPayload = await callMcpMechanics('/api/mcp/combat/advance', {
+          combat_state: combatState,
+          player_action: action,
+          player_stats: playerStats,
+          language
+        });
+        combatState = roundPayload?.result?.combat_state || combatState;
+        appendMechanicsCard(roundPayload, beforeNode, Language.t('combat_round_label'));
+        entries.push(buildMechanicsHistoryEntry(roundPayload));
+        if (combatState?.status !== 'active') combatState = null;
+        return entries;
+      }
+
+      if (detectDiceIntent(action)) {
+        const statName = inferStatForAction(action);
+        const payload = await callMcpMechanics('/api/mcp/roll-check', {
+          stat_name: statName,
+          stat_value: playerStats[statName],
+          difficulty_class: inferDifficultyClass(action, loc),
+          language
+        });
+        appendMechanicsCard(payload, beforeNode, Language.t('dice_roll_label'));
+        entries.push(buildMechanicsHistoryEntry(payload));
+      }
+
+      return entries;
+    };
+
+    const runMcpDemo = async () => {
+      const { char, loc, storyPremise } = getSelectedEncounterContext();
+      if (!char || !loc) {
+        if (mcpDemoOutput) mcpDemoOutput.textContent = 'Select a character and location before running the MCP demo.';
+        return;
+      }
+
+      if (mcpDemoOutput) mcpDemoOutput.textContent = 'Calling MCP tool get_encounter_context...';
+      try {
+        const response = await fetch(`${MUSEAI_API_BASE}/api/mcp/demo`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            character_name: char.name,
+            location_name: loc.name,
+            story_premise: storyPremise
+          })
+        });
+        const data = await response.json();
+        if (data.status !== 'success') throw new Error(data.message || 'MCP demo failed');
+        if (mcpDemoOutput) mcpDemoOutput.textContent = renderMcpContextResult(data.data);
+      } catch (err) {
+        if (mcpDemoOutput) mcpDemoOutput.textContent = `MCP demo failed: ${err.message}`;
+      }
     };
     
     // Populate dropdowns when page is active
@@ -2666,6 +3104,7 @@ const AIGenerator = (() => {
       // Reset histories
       campaignHistory = "--- CAMPAIGN START ---\\nInitial Premise: " + premiseDesc + "\\n";
       npcHistories = {};
+      combatState = null;
       syncEncounterEngineUI();
 
       document.getElementById('encounter-setup').classList.add('hidden');
@@ -2685,6 +3124,7 @@ const AIGenerator = (() => {
       document.getElementById('encounter-setup').classList.remove('hidden');
       document.getElementById('ai-chat').classList.add('hidden');
       document.getElementById('ai-input').value = '';
+      combatState = null;
     });
 
     btnSend?.addEventListener('click', () => handleActionSubmit());
@@ -2725,7 +3165,12 @@ const AIGenerator = (() => {
       msgs.scrollTop = msgs.scrollHeight;
 
       try {
-        const response = await fetch('http://localhost:8000/api/action', {
+        const mechanicsEntries = await resolveMechanicsForAction(action, char, loc, loadingDiv);
+        for (const entry of mechanicsEntries) {
+          campaignHistory += `\\nMCP Mechanics: ${entry}`;
+        }
+
+        const response = await fetch(`${MUSEAI_API_BASE}/api/action`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -2735,6 +3180,9 @@ const AIGenerator = (() => {
             npc_histories: npcHistories,
             action,
             location_context,
+            character_name: char.name,
+            location_name: loc.name,
+            language: Language.getLanguage(),
             engine: selectedEngine
           })
         });
@@ -2763,6 +3211,13 @@ const AIGenerator = (() => {
             workflowDiv.innerHTML = `<div class="ai-msg__label">${Renderer.escapeHtml(resultConfig.workflowLabel)}</div><div>${Renderer.escapeHtml(result.workflow_steps.join(' → '))}</div>`;
             msgs.appendChild(workflowDiv);
           }
+
+          if (result.mcp_context) {
+            const mcpDiv = document.createElement('div');
+            mcpDiv.className = 'ai-msg ai-msg--ai';
+            mcpDiv.innerHTML = `<div class="ai-msg__label">${Renderer.escapeHtml(Language.t('mcp_context_label'))}</div><div>${Renderer.escapeHtml(renderMcpContextSummary(result.mcp_context))}</div>`;
+            msgs.appendChild(mcpDiv);
+          }
           
           // Add Sub-Agents (NPC) Dialogues
           if (result.npc_reactions && result.npc_reactions.length > 0) {
@@ -2774,7 +3229,8 @@ const AIGenerator = (() => {
               
               const npcDiv = document.createElement('div');
               npcDiv.className = 'ai-msg ai-msg--ai';
-              npcDiv.innerHTML = `<div class="ai-msg__label">${Renderer.escapeHtml(npc.name)} (${Renderer.escapeHtml(resultConfig.npcLabel)})</div><div><em>${Renderer.escapeHtml(npc.dialogue)}</em></div>`;
+              const npcDisplayName = Language.translateNpcName(npc.name);
+              npcDiv.innerHTML = `<div class="ai-msg__label">${Renderer.escapeHtml(npcDisplayName)} (${Renderer.escapeHtml(resultConfig.npcLabel)})</div><div><em>${Renderer.escapeHtml(npc.dialogue)}</em></div>`;
               msgs.appendChild(npcDiv);
             }
           }
@@ -2792,6 +3248,7 @@ const AIGenerator = (() => {
     }
 
     engineSelect?.addEventListener('change', () => syncEncounterEngineUI());
+    mcpDemoBtn?.addEventListener('click', () => runMcpDemo());
     document.addEventListener('museai:languagechange', () => {
       populateDropdowns();
       syncEncounterEngineUI();

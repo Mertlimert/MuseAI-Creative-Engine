@@ -1287,6 +1287,9 @@ textarea.char-backstory:focus {
   border-radius: var(--radius-lg);
   overflow: hidden;
   margin-bottom: var(--space-2xl);
+  min-height: 72vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .ai-chat__header {
@@ -1316,16 +1319,17 @@ textarea.char-backstory:focus {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  min-height: 300px;
-  max-height: 450px;
+  min-height: 520px;
+  max-height: 68vh;
+  flex: 1;
   overflow-y: auto;
 }
 
 .ai-msg {
-  max-width: 80%;
+  max-width: 88%;
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-lg);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.6;
   animation: msgSlide 0.3s ease;
 }
@@ -1409,6 +1413,190 @@ textarea.char-backstory:focus {
   color: var(--color-text-secondary);
   font-size: 0.85rem;
   line-height: 1.5;
+}
+
+.mcp-demo-panel {
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: var(--radius-md);
+  background: rgba(15, 23, 42, 0.48);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.mcp-demo-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.mcp-demo-panel__header h3 {
+  margin: 0 0 var(--space-xs);
+  font-size: 1rem;
+  color: #93c5fd;
+}
+
+.mcp-demo-panel__header p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.mcp-demo-panel__output {
+  min-height: 64px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: var(--radius-sm);
+  background: rgba(2, 6, 23, 0.35);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  padding: var(--space-md);
+  white-space: pre-wrap;
+}
+
+.mcp-demo-panel__output strong {
+  color: var(--color-text-primary);
+}
+
+.ai-msg--mechanics {
+  max-width: 94%;
+  background: linear-gradient(135deg, rgba(8, 47, 73, 0.9), rgba(15, 23, 42, 0.96));
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.combat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.combat-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.combat-card__top h4 {
+  margin: 0;
+  color: #e0f2fe;
+  font-size: 1.02rem;
+}
+
+.combat-card__top span,
+.combat-card__eyebrow {
+  color: #7dd3fc;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.combat-roll {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: rgba(2, 6, 23, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.combat-roll strong {
+  color: #fef3c7;
+  font-size: 1rem;
+}
+
+.combat-roll em {
+  color: var(--color-text-secondary);
+  font-style: normal;
+}
+
+.combat-roll--critical_success,
+.combat-roll--success {
+  border-color: rgba(34, 197, 94, 0.45);
+}
+
+.combat-roll--critical_failure,
+.combat-roll--failure {
+  border-color: rgba(248, 113, 113, 0.45);
+}
+
+.combat-stat,
+.combat-summary {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.combat-grid {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.combat-hp {
+  padding: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: var(--radius-sm);
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.combat-hp__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: 0.45rem;
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+}
+
+.combat-hp__meta strong {
+  color: #bae6fd;
+}
+
+.combat-hp__bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.combat-hp__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22c55e, #facc15, #ef4444);
+  transition: width 0.35s ease;
+}
+
+.combat-log {
+  margin: 0;
+  padding-left: 1rem;
+  color: var(--color-text-primary);
+  font-size: 0.86rem;
+}
+
+@media (max-width: 640px) {
+  .mcp-demo-panel__header {
+    flex-direction: column;
+  }
+
+  .ai-chat {
+    min-height: 64vh;
+  }
+
+  .ai-chat__messages {
+    min-height: 420px;
+    max-height: 62vh;
+  }
+
+  .ai-msg {
+    max-width: 94%;
+    font-size: 0.9rem;
+  }
 }
 
 /* ── AI Architecture Diagram ── */

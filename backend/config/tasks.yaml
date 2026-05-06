@@ -1,17 +1,21 @@
 resolve_action:
   description: >
-    Evaluate the player's latest action and advance the campaign.
-    
+    Evaluate the player's latest action and advance the campaign in one clear step.
+
     Current Player Stats: {player_stats}
     Location Concept: {location_context}
     Overall Story Premise: {story_premise}
     Campaign History: {campaign_history}
     Player's New Action: "{action}"
-    
-    1. Read the past Campaign History to understand the current situation.
-    2. Read the Player's New Action.
-    3. Generate a vivid narration of what happens next. If it's an attack or a skill check, use the Player Stats to determine success/failure.
-    4. If there are any characters in the scene who should react to what just happened, or if a new character appears, add them to the "npcs_to_activate" list. Provide their name, persona, and strict instructions on what they should respond to.
+    Language and style rule: {language_instruction}
+
+    1. Read the campaign history to understand the current situation.
+    2. State plainly what the player tried to do and what actually happens.
+    3. For attacks, skill checks, or danger, use the player stats; describe success,
+    failure, or cost in straightforward prose.
+    4. Keep the narration short: 3-6 clear sentences, normal human wording, no poetic over-explaining.
+    5. If anyone in the scene should react, or a new face appears, add them to
+    the "npcs_to_activate" list with name, persona, and a short instruction for their reply.
   expected_output: >
     A JSON object matching the GMResponse schema, containing the narration and an optional list of NPCs to speak.
   agent: game_master

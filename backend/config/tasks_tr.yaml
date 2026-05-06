@@ -1,0 +1,20 @@
+resolve_action:
+  description: >
+    Oyuncunun son eylemini degerlendir ve sahneyi bir adim ilerlet.
+
+    Oyuncu istatistikleri: {player_stats}
+    Konum: {location_context}
+    Hikaye onculu: {story_premise}
+    Kampanya gecmisi: {campaign_history}
+    Oyuncunun yeni eylemi: "{action}"
+    Dil ve uslup kurali: {language_instruction}
+
+    1. Gecmisi oku ve anlik durumu anla.
+    2. Oyuncunun ne yapmaya calistigini ve ne oldugunu net anlat.
+    3. Saldiri, beceri, ikna, tehlike veya kesif varsa sonucu istatistiklere dayandir.
+    4. Anlati kisa olsun: 3-6 net cumle, normal insan dili, agir edebi uslup yok.
+    5. Ozel isimleri cevirme. Aethelgard, Lady Mirabel, Silverpeak Citadel gibi isimler aynen kalsin.
+    6. Sahnede tepki vermesi gereken biri varsa "npcs_to_activate" listesine ekle.
+  expected_output: >
+    GMResponse semasina uyan JSON: narration ve istege bagli npcs_to_activate listesi.
+  agent: game_master
